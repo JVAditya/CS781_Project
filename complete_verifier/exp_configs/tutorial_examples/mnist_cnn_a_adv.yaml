@@ -9,7 +9,7 @@ data:
   mean: [0.]
 specification:
   epsilon: 0.3
-  norm: 2.0
+  norm: .inf
 attack:
   pgd_restarts: 50
 solver:

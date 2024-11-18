@@ -1,2 +1,2 @@
-k = 28
+k = 10
 FLOAT_COMP_PREC=1e-7

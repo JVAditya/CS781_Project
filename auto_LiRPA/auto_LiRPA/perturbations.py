@@ -263,7 +263,7 @@ class PerturbationLpNorm(Perturbation):
                 # @JV: New addition
                 bound = None
                 if len(xshape) == 3:
-                    if self.norm == 1:
+                    if abs(self.norm - 1) < 1e-4:
                         bound = A.matmul(x) + sign * (
                             torch.amax(
                                 torch.nn.functional.max_pool2d(
@@ -288,7 +288,7 @@ class PerturbationLpNorm(Perturbation):
                         ) * self.eps
 
                 elif len(xshape) == 4:
-                    if self.norm == 1:
+                    if abs(self.norm - 1) < 1e-4:
                         bound = A.matmul(x) + sign * (        
                             torch.amax(
                                 torch.nn.functional.max_pool2d(
@@ -416,7 +416,7 @@ class PerturbationLpNorm(Perturbation):
 
                 # @JV: New addition. TODO: deal with dual_norm == infty
                 deviation = None
-                if self.norm == 1:
+                if abs(self.norm - 1) < 1e-4:
                     deviation = ( 
                         torch.amax(
                             torch.nn.functional.max_pool2d(
