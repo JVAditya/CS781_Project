@@ -1,0 +1,1168 @@
+Configurations:
+
+general:
+  device: cuda
+  seed: 100
+  conv_mode: patches
+  deterministic: false
+  double_fp: false
+  loss_reduction_func: sum
+  sparse_alpha: true
+  sparse_interm: true
+  save_adv_example: false
+  eval_adv_example: false
+  show_adv_example: false
+  precompile_jit: false
+  complete_verifier: bab
+  enable_incomplete_verification: true
+  csv_name: null
+  results_file: out.txt
+  root_path: ''
+  deterministic_opt: false
+  graph_optimizer: 'Customized("custom_graph_optimizer", "default_optimizer")'
+  buffer_has_batchdim: false
+  save_output: false
+  output_file: out.pkl
+  return_optimized_model: false
+model:
+  name: resnet2b
+  path: models/cifar10_resnet/resnet2b.pth
+  onnx_path: null
+  onnx_path_prefix: ''
+  cache_onnx_conversion: false
+  debug_onnx: false
+  onnx_quirks: null
+  input_shape: null
+  onnx_loader: default_onnx_and_vnnlib_loader
+  onnx_optimization_flags: none
+  onnx_vnnlib_joint_optimization_flags: none
+  check_optmized: false
+  flatten_final_output: false
+  optimize_graph: null
+  with_jacobian: false
+data:
+  start: 0
+  end: 10
+  select_instance: null
+  num_outputs: 10
+  mean: [0.4914, 0.4822, 0.4465]
+  std: [0.2471, 0.2435, 0.2616]
+  pkl_path: null
+  dataset: CIFAR
+  data_filter_path: null
+  data_idx_file: null
+specification:
+  type: lp
+  robustness_type: verified-acc
+  norm: .inf
+  epsilon: 0.00784313725490196
+  epsilon_min: 0.0
+  vnnlib_path: null
+  vnnlib_path_prefix: ''
+  rhs_offset: null
+solver:
+  batch_size: 2048
+  auto_enlarge_batch_size: false
+  min_batch_size_ratio: 0.1
+  use_float64_in_last_iteration: false
+  early_stop_patience: 10
+  start_save_best: 0.5
+  bound_prop_method: alpha-crown
+  init_bound_prop_method: same
+  prune_after_crown: false
+  optimize_disjuncts_separately: false
+  crown:
+    batch_size: 1000000000
+    max_crown_size: 1000000000
+    relu_option: adaptive
+  alpha-crown:
+    alpha: true
+    lr_alpha: 0.1
+    iteration: 100
+    share_alphas: false
+    lr_decay: 0.98
+    full_conv_alpha: true
+    max_coeff_mul: .inf
+    matmul_share_alphas: false
+    disable_optimization: []
+  invprop:
+    apply_output_constraints_to: []
+    tighten_input_bounds: false
+    best_of_oc_and_no_oc: false
+    directly_optimize: []
+    oc_lr: 0.1
+    share_gammas: false
+  beta-crown:
+    lr_alpha: 0.01
+    lr_beta: 0.05
+    lr_decay: 0.98
+    optimizer: adam
+    iteration: 20
+    beta: true
+    beta_warmup: true
+    enable_opt_interm_bounds: false
+    all_node_split_LP: false
+  forward:
+    refine: false
+    dynamic: false
+    max_dim: 10000
+    reset_threshold: 1.0
+  multi_class:
+    label_batch_size: 32
+    skip_with_refined_bound: true
+  mip:
+    parallel_solvers: null
+    solver_threads: 1
+    refine_neuron_timeout: 15
+    refine_neuron_time_percentage: 0.8
+    early_stop: true
+    adv_warmup: true
+    mip_solver: gurobi
+    skip_unsafe: false
+bab:
+  initial_max_domains: 1
+  max_domains: .inf
+  decision_thresh: 0
+  timeout: 120
+  timeout_scale: 1
+  max_iterations: -1
+  override_timeout: null
+  get_upper_bound: false
+  pruning_in_iteration: true
+  pruning_in_iteration_ratio: 0.2
+  sort_targets: false
+  batched_domain_list: true
+  optimized_interm: ''
+  interm_transfer: true
+  recompute_interm: false
+  sort_domain_interval: -1
+  vanilla_crown: false
+  cut:
+    enabled: false
+    implication: false
+    bab_cut: false
+    lp_cut: false
+    method: null
+    lr: 0.01
+    lr_decay: 1.0
+    iteration: 100
+    bab_iteration: -1
+    early_stop_patience: -1
+    lr_beta: 0.02
+    number_cuts: 50
+    topk_cuts_in_filter: 1000
+    batch_size_primal: 100
+    max_num: 1000000000
+    patches_cut: false
+    cplex_cuts: false
+    cplex_cuts_wait: 0
+    cplex_cuts_revpickup: true
+    cut_reference_bounds: true
+    fix_intermediate_bounds: false
+  branching:
+    method: kfsb
+    candidates: 3
+    reduceop: min
+    enable_intermediate_bound_opt: false
+    branching_input_and_activation: false
+    branching_input_and_activation_order: [input, relu]
+    branching_input_iterations: 30
+    branching_relu_iterations: 50
+    nonlinear_split:
+      method: shortcut
+      branching_point_method: uniform
+      num_branches: 2
+      filter: false
+      filter_beta: false
+      filter_batch_size: 10000
+      filter_iterations: 25
+      use_min: false
+      loose_tanh_threshold: null
+      dynamic_bbps: false
+      dynamic_options: [uniform, three_left, three_right]
+    input_split:
+      enable: false
+      enhanced_bound_prop_method: alpha-crown
+      enhanced_branching_method: naive
+      enhanced_bound_patience: 100000000.0
+      attack_patience: 100000000.0
+      adv_check: 0
+      split_partitions: 2
+      sb_margin_weight: 1.0
+      sb_sum: false
+      bf_backup_thresh: -1
+      bf_rhs_offset: 0
+      bf_iters: 1000000000.0
+      bf_batch_size: 100000
+      bf_zero_crossing_score: false
+      touch_zero_score: 0
+      ibp_enhancement: false
+      catch_assertion: false
+      compare_with_old_bounds: false
+      update_rhs_with_attack: false
+      sb_coeff_thresh: 0.001
+      sort_index: null
+      sort_descending: true
+      show_progress: false
+  attack:
+    enabled: false
+    beam_candidates: 8
+    beam_depth: 7
+    max_dive_fix_ratio: 0.8
+    min_local_free_ratio: 0.2
+    mip_start_iteration: 5
+    mip_timeout: 30.0
+    adv_pool_threshold: null
+    refined_mip_attacker: false
+    refined_batch_size: null
+attack:
+  pgd_order: before
+  pgd_steps: 100
+  pgd_restarts: 30
+  pgd_batch_size: 100000000
+  pgd_early_stop: true
+  pgd_lr_decay: 0.99
+  pgd_alpha: auto
+  pgd_alpha_scale: false
+  pgd_loss_mode: null
+  enable_mip_attack: false
+  adv_saver: default_adv_saver
+  early_stop_condition: default_early_stop_condition
+  adv_example_finalizer: default_adv_example_finalizer
+  pgd_loss: default_pgd_loss
+  cex_path: ./test_cex.txt
+  attack_mode: PGD
+  attack_tolerance: 0.0
+  attack_func: attack_with_general_specs
+  gama_lambda: 10.0
+  gama_decay: 0.9
+  check_clean: false
+  input_split:
+    pgd_steps: 100
+    pgd_restarts: 30
+    pgd_alpha: auto
+  input_split_enhanced:
+    pgd_steps: 200
+    pgd_restarts: 500000
+    pgd_alpha: auto
+  input_split_check_adv:
+    pgd_steps: 5
+    pgd_restarts: 5
+    pgd_alpha: auto
+    max_num_domains: 10
+debug:
+  view_model: false
+  lp_test: null
+  rescale_vnnlib_ptb: null
+  test_optimized_bounds: false
+  test_optimized_bounds_after_n_iterations: 0
+  print_verbose_decisions: false
+
+Experiments at Mon Nov 18 21:25:08 2024 on iitb-dgx2.iitb.ac.in
+CResNet5(
+  (conv1): Conv2d(3, 8, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+  (layer1): Sequential(
+    (0): BasicBlock(
+      (conv1): Conv2d(8, 16, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+      (conv2): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (shortcut): Sequential(
+        (0): Conv2d(8, 16, kernel_size=(1, 1), stride=(2, 2))
+      )
+    )
+    (1): BasicBlock(
+      (conv1): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (conv2): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (shortcut): Sequential()
+    )
+  )
+  (linear1): Linear(in_features=1024, out_features=100, bias=True)
+  (linear2): Linear(in_features=100, out_features=10, bias=True)
+)
+Parameters:
+  conv1.weight: shape torch.Size([8, 3, 3, 3])
+  conv1.bias: shape torch.Size([8])
+  layer1.0.conv1.weight: shape torch.Size([16, 8, 3, 3])
+  layer1.0.conv1.bias: shape torch.Size([16])
+  layer1.0.conv2.weight: shape torch.Size([16, 16, 3, 3])
+  layer1.0.conv2.bias: shape torch.Size([16])
+  layer1.0.shortcut.0.weight: shape torch.Size([16, 8, 1, 1])
+  layer1.0.shortcut.0.bias: shape torch.Size([16])
+  layer1.1.conv1.weight: shape torch.Size([16, 16, 3, 3])
+  layer1.1.conv1.bias: shape torch.Size([16])
+  layer1.1.conv2.weight: shape torch.Size([16, 16, 3, 3])
+  layer1.1.conv2.bias: shape torch.Size([16])
+  linear1.weight: shape torch.Size([100, 1024])
+  linear1.bias: shape torch.Size([100])
+  linear2.weight: shape torch.Size([10, 100])
+  linear2.bias: shape torch.Size([10])
+Trying generic MNIST/CIFAR data loader.
+Files already downloaded and verified
+Internal results will be saved to out.txt.
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% idx: 0, vnnlib ID: 0 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Attack parameters: initialization=uniform, steps=100, restarts=30, alpha=0.008052527904510498, initialization=uniform, GAMA=False
+Model output of first 5 examples:
+ tensor([[-1.19091582, -0.50774664, -0.05718271,  2.23404980, -0.64370042,
+          2.38971567,  1.96902430, -1.46069193, -0.98059344, -1.75199330]],
+       device='cuda:0')
+Clean prediction incorrect, attack skipped.
+Adv example prediction (first 2 examples and 2 restarts):
+ tensor([[[-1.19091570, -0.50774688, -0.05718265,  2.23405004, -0.64370042,
+           2.38971639,  1.96902502, -1.46069145, -0.98059356, -1.75199342],
+         [-1.19091570, -0.50774688, -0.05718265,  2.23405004, -0.64370042,
+           2.38971639,  1.96902502, -1.46069145, -0.98059356, -1.75199342]]],
+       device='cuda:0')
+PGD attack margin (first 2 examles and 10 specs):
+ tensor([[[ 3.42496586,  2.74179697,  2.29123259,  2.87775040, -0.15566635,
+           0.26502502,  3.69474149,  3.21464348,  3.98604345]]],
+       device='cuda:0')
+number of violation:  1
+Result: unsafe-pgd in 1.1422 seconds
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% idx: 1, vnnlib ID: 1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Attack parameters: initialization=uniform, steps=100, restarts=30, alpha=0.008052505552768707, initialization=uniform, GAMA=False
+Model output of first 5 examples:
+ tensor([[ 3.02953815,  4.21952534, -2.03169966, -1.62848067, -1.60506845,
+         -4.36937761, -2.96140218, -3.56549168,  6.42298079,  2.48937225]],
+       device='cuda:0')
+Adv example prediction (first 2 examples and 2 restarts):
+ tensor([[[ 2.94669008,  4.77577972, -2.15235949, -1.69263768, -1.81246042,
+          -4.39702415, -3.01135206, -3.61026287,  6.10562086,  2.84790945],
+         [ 2.94669008,  4.77577972, -2.15235949, -1.69263768, -1.81246042,
+          -4.39702415, -3.01135206, -3.61026287,  6.10562086,  2.84790945]]],
+       device='cuda:0')
+PGD attack margin (first 2 examles and 10 specs):
+ tensor([[[ 3.15893078,  1.32984114,  8.25798035,  7.79825878,  7.91808128,
+          10.50264549,  9.11697292,  9.71588326,  3.25771141]]],
+       device='cuda:0')
+number of violation:  0
+Attack finished in 0.7387 seconds.
+PGD attack failed
+Model: BoundedModule(
+  (/input.1): BoundInput(name=/input.1, inputs=[], perturbed=True)
+  (/1): BoundParams(name=/1, inputs=[], perturbed=False)
+  (/2): BoundParams(name=/2, inputs=[], perturbed=False)
+  (/3): BoundParams(name=/3, inputs=[], perturbed=False)
+  (/4): BoundParams(name=/4, inputs=[], perturbed=False)
+  (/5): BoundParams(name=/5, inputs=[], perturbed=False)
+  (/6): BoundParams(name=/6, inputs=[], perturbed=False)
+  (/7): BoundParams(name=/7, inputs=[], perturbed=False)
+  (/8): BoundParams(name=/8, inputs=[], perturbed=False)
+  (/9): BoundParams(name=/9, inputs=[], perturbed=False)
+  (/10): BoundParams(name=/10, inputs=[], perturbed=False)
+  (/11): BoundParams(name=/11, inputs=[], perturbed=False)
+  (/12): BoundParams(name=/12, inputs=[], perturbed=False)
+  (/13): BoundParams(name=/13, inputs=[], perturbed=False)
+  (/14): BoundParams(name=/14, inputs=[], perturbed=False)
+  (/15): BoundParams(name=/15, inputs=[], perturbed=False)
+  (/16): BoundParams(name=/16, inputs=[], perturbed=False)
+  (/17): BoundConv(name=/17, inputs=[/input.1, /1, /2], perturbed=True)
+  (/input): BoundRelu(name=/input, inputs=[/17], perturbed=True)
+  (/19): BoundConv(name=/19, inputs=[/input, /3, /4], perturbed=True)
+  (/input.4): BoundRelu(name=/input.4, inputs=[/19], perturbed=True)
+  (/21): BoundConv(name=/21, inputs=[/input.4, /5, /6], perturbed=True)
+  (/22): BoundConv(name=/22, inputs=[/input, /7, /8], perturbed=True)
+  (/23): BoundAdd(name=/23, inputs=[/21, /22], perturbed=True)
+  (/input.8): BoundRelu(name=/input.8, inputs=[/23], perturbed=True)
+  (/25): BoundConv(name=/25, inputs=[/input.8, /9, /10], perturbed=True)
+  (/input.12): BoundRelu(name=/input.12, inputs=[/25], perturbed=True)
+  (/27): BoundConv(name=/27, inputs=[/input.12, /11, /12], perturbed=True)
+  (/28): BoundAdd(name=/28, inputs=[/27, /input.8], perturbed=True)
+  (/29): BoundRelu(name=/29, inputs=[/28], perturbed=True)
+  (/30): BoundShape(name=/30, inputs=[/29], perturbed=False)
+  (/31): BoundConstant(name=/31, value=0)
+  (/32): BoundGather(name=/32, inputs=[/30, /31], perturbed=False)
+  (/33): BoundConstant(name=/33, value=-1)
+  (/34): BoundConstant(name=/34, value=tensor([0], device='cuda:0'))
+  (/35): BoundUnsqueeze(name=/35, inputs=[/32, /34], perturbed=False)
+  (/36): BoundConstant(name=/36, value=tensor([0], device='cuda:0'))
+  (/37): BoundUnsqueeze(name=/37, inputs=[/33, /36], perturbed=False)
+  (/38): BoundConcat(name=/38, inputs=[/35, /37], perturbed=False)
+  (/39): BoundReshape(name=/39, inputs=[/29, /38], perturbed=True)
+  (/40): BoundLinear(name=/40, inputs=[/39, /13, /14], perturbed=True)
+  (/41): BoundRelu(name=/41, inputs=[/40], perturbed=True)
+  (/42): BoundLinear(name=/42, inputs=[/41, /15, /16], perturbed=True)
+)
+Original output: tensor([[ 3.02953815,  4.21952581, -2.03169966, -1.62848067, -1.60506868,
+         -4.36937761, -2.96140218, -3.56549168,  6.42298079,  2.48937178]],
+       device='cuda:0')
+Split layers:
+  BoundConv(name=/17, inputs=[/input.1, /1, /2], perturbed=True): [(BoundRelu(name=/input, inputs=[/17], perturbed=True), 0)]
+  BoundConv(name=/19, inputs=[/input, /3, /4], perturbed=True): [(BoundRelu(name=/input.4, inputs=[/19], perturbed=True), 0)]
+  BoundAdd(name=/23, inputs=[/21, /22], perturbed=True): [(BoundRelu(name=/input.8, inputs=[/23], perturbed=True), 0)]
+  BoundConv(name=/25, inputs=[/input.8, /9, /10], perturbed=True): [(BoundRelu(name=/input.12, inputs=[/25], perturbed=True), 0)]
+  BoundAdd(name=/28, inputs=[/27, /input.8], perturbed=True): [(BoundRelu(name=/29, inputs=[/28], perturbed=True), 0)]
+  BoundLinear(name=/40, inputs=[/39, /13, /14], perturbed=True): [(BoundRelu(name=/41, inputs=[/40], perturbed=True), 0)]
+Nonlinear functions:
+   BoundRelu(name=/input, inputs=[/17], perturbed=True)
+   BoundRelu(name=/input.4, inputs=[/19], perturbed=True)
+   BoundRelu(name=/input.8, inputs=[/23], perturbed=True)
+   BoundRelu(name=/input.12, inputs=[/25], perturbed=True)
+   BoundRelu(name=/29, inputs=[/28], perturbed=True)
+   BoundRelu(name=/41, inputs=[/40], perturbed=True)
+layer /input using sparse-features alpha with shape [158]; unstable size 158; total size 2048 ([1, 8, 16, 16])
+layer /input start_node /19 using sparse-spec alpha [2, 48, 1, 158] with unstable size 47 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /23 using sparse-spec alpha [2, 30, 1, 158] with unstable size 29 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /25 using sparse-spec alpha [2, 28, 1, 158] with unstable size 27 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /28 using sparse-spec alpha [2, 71, 1, 158] with unstable size 70 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /40 using sparse-spec alpha [2, 5, 1, 158] with unstable size 4 total_size 100 output_shape torch.Size([100])
+layer /input start_node /42 using full alpha [2, 9, 1, 158] with unstable size None total_size 9 output_shape 9
+layer /input.4 using sparse-features alpha with shape [47]; unstable size 47; total size 1024 ([1, 16, 8, 8])
+layer /input.4 start_node /23 using sparse-spec alpha [2, 30, 1, 47] with unstable size 29 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /25 using sparse-spec alpha [2, 28, 1, 47] with unstable size 27 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /28 using sparse-spec alpha [2, 71, 1, 47] with unstable size 70 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /40 using sparse-spec alpha [2, 5, 1, 47] with unstable size 4 total_size 100 output_shape torch.Size([100])
+layer /input.4 start_node /42 using full alpha [2, 9, 1, 47] with unstable size None total_size 9 output_shape 9
+layer /input.8 using sparse-features alpha with shape [29]; unstable size 29; total size 1024 ([1, 16, 8, 8])
+layer /input.8 start_node /25 using sparse-spec alpha [2, 28, 1, 29] with unstable size 27 total_size 1024 output_shape (16, 8, 8)
+layer /input.8 start_node /28 using sparse-spec alpha [2, 71, 1, 29] with unstable size 70 total_size 1024 output_shape (16, 8, 8)
+layer /input.8 start_node /40 using sparse-spec alpha [2, 5, 1, 29] with unstable size 4 total_size 100 output_shape torch.Size([100])
+layer /input.8 start_node /42 using full alpha [2, 9, 1, 29] with unstable size None total_size 9 output_shape 9
+layer /input.12 using sparse-features alpha with shape [27]; unstable size 27; total size 1024 ([1, 16, 8, 8])
+layer /input.12 start_node /28 using sparse-spec alpha [2, 71, 1, 27] with unstable size 70 total_size 1024 output_shape (16, 8, 8)
+layer /input.12 start_node /40 using sparse-spec alpha [2, 5, 1, 27] with unstable size 4 total_size 100 output_shape torch.Size([100])
+layer /input.12 start_node /42 using full alpha [2, 9, 1, 27] with unstable size None total_size 9 output_shape 9
+layer /29 using sparse-features alpha with shape [70]; unstable size 70; total size 1024 ([1, 16, 8, 8])
+layer /29 start_node /40 using sparse-spec alpha [2, 5, 1, 70] with unstable size 4 total_size 100 output_shape torch.Size([100])
+layer /29 start_node /42 using full alpha [2, 9, 1, 70] with unstable size None total_size 9 output_shape 9
+layer /41 using sparse-features alpha with shape [4]; unstable size 4; total size 100 ([1, 100])
+layer /41 start_node /42 using full alpha [2, 9, 1, 4] with unstable size None total_size 9 output_shape 9
+Optimizable variables initialized.
+initial CROWN bounds: tensor([[ 3.14769769,  1.86056542,  8.17368698,  7.77040195,  7.74099112,
+         10.46531677,  9.07115078,  9.64053726,  3.59342480]], device='cuda:0') None
+Verified with initial CROWN!
+verified with init bound!
+Result: safe-incomplete in 1.9416 seconds
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% idx: 2, vnnlib ID: 2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Attack parameters: initialization=uniform, steps=100, restarts=30, alpha=0.008052527904510498, initialization=uniform, GAMA=False
+Model output of first 5 examples:
+ tensor([[ 2.39994097,  2.80351782, -1.48902440, -0.93684304, -1.69659591,
+         -1.44825721, -3.80596066, -2.09725142,  4.45986986,  1.81048477]],
+       device='cuda:0')
+Adv example prediction (first 2 examples and 2 restarts):
+ tensor([[[ 2.15855432,  3.37921095, -1.70690763, -0.88794780, -1.98059130,
+          -1.37402964, -3.74610233, -2.08496666,  4.09959507,  2.14307499],
+         [ 2.15855432,  3.37921095, -1.70690763, -0.88794780, -1.98059130,
+          -1.37402964, -3.74610233, -2.08496666,  4.09959507,  2.14307499]]],
+       device='cuda:0')
+PGD attack margin (first 2 examles and 10 specs):
+ tensor([[[1.94104075, 0.72038412, 5.80650282, 4.98754311, 6.08018637,
+          5.47362471, 7.84569740, 6.18456173, 1.95652008]]], device='cuda:0')
+number of violation:  0
+Attack finished in 0.2762 seconds.
+PGD attack failed
+Model: BoundedModule(
+  (/input.1): BoundInput(name=/input.1, inputs=[], perturbed=True)
+  (/1): BoundParams(name=/1, inputs=[], perturbed=False)
+  (/2): BoundParams(name=/2, inputs=[], perturbed=False)
+  (/3): BoundParams(name=/3, inputs=[], perturbed=False)
+  (/4): BoundParams(name=/4, inputs=[], perturbed=False)
+  (/5): BoundParams(name=/5, inputs=[], perturbed=False)
+  (/6): BoundParams(name=/6, inputs=[], perturbed=False)
+  (/7): BoundParams(name=/7, inputs=[], perturbed=False)
+  (/8): BoundParams(name=/8, inputs=[], perturbed=False)
+  (/9): BoundParams(name=/9, inputs=[], perturbed=False)
+  (/10): BoundParams(name=/10, inputs=[], perturbed=False)
+  (/11): BoundParams(name=/11, inputs=[], perturbed=False)
+  (/12): BoundParams(name=/12, inputs=[], perturbed=False)
+  (/13): BoundParams(name=/13, inputs=[], perturbed=False)
+  (/14): BoundParams(name=/14, inputs=[], perturbed=False)
+  (/15): BoundParams(name=/15, inputs=[], perturbed=False)
+  (/16): BoundParams(name=/16, inputs=[], perturbed=False)
+  (/17): BoundConv(name=/17, inputs=[/input.1, /1, /2], perturbed=True)
+  (/input): BoundRelu(name=/input, inputs=[/17], perturbed=True)
+  (/19): BoundConv(name=/19, inputs=[/input, /3, /4], perturbed=True)
+  (/input.4): BoundRelu(name=/input.4, inputs=[/19], perturbed=True)
+  (/21): BoundConv(name=/21, inputs=[/input.4, /5, /6], perturbed=True)
+  (/22): BoundConv(name=/22, inputs=[/input, /7, /8], perturbed=True)
+  (/23): BoundAdd(name=/23, inputs=[/21, /22], perturbed=True)
+  (/input.8): BoundRelu(name=/input.8, inputs=[/23], perturbed=True)
+  (/25): BoundConv(name=/25, inputs=[/input.8, /9, /10], perturbed=True)
+  (/input.12): BoundRelu(name=/input.12, inputs=[/25], perturbed=True)
+  (/27): BoundConv(name=/27, inputs=[/input.12, /11, /12], perturbed=True)
+  (/28): BoundAdd(name=/28, inputs=[/27, /input.8], perturbed=True)
+  (/29): BoundRelu(name=/29, inputs=[/28], perturbed=True)
+  (/30): BoundShape(name=/30, inputs=[/29], perturbed=False)
+  (/31): BoundConstant(name=/31, value=0)
+  (/32): BoundGather(name=/32, inputs=[/30, /31], perturbed=False)
+  (/33): BoundConstant(name=/33, value=-1)
+  (/34): BoundConstant(name=/34, value=tensor([0], device='cuda:0'))
+  (/35): BoundUnsqueeze(name=/35, inputs=[/32, /34], perturbed=False)
+  (/36): BoundConstant(name=/36, value=tensor([0], device='cuda:0'))
+  (/37): BoundUnsqueeze(name=/37, inputs=[/33, /36], perturbed=False)
+  (/38): BoundConcat(name=/38, inputs=[/35, /37], perturbed=False)
+  (/39): BoundReshape(name=/39, inputs=[/29, /38], perturbed=True)
+  (/40): BoundLinear(name=/40, inputs=[/39, /13, /14], perturbed=True)
+  (/41): BoundRelu(name=/41, inputs=[/40], perturbed=True)
+  (/42): BoundLinear(name=/42, inputs=[/41, /15, /16], perturbed=True)
+)
+Original output: tensor([[ 2.39994097,  2.80351782, -1.48902452, -0.93684292, -1.69659567,
+         -1.44825745, -3.80596066, -2.09725142,  4.45986938,  1.81048453]],
+       device='cuda:0')
+Split layers:
+  BoundConv(name=/17, inputs=[/input.1, /1, /2], perturbed=True): [(BoundRelu(name=/input, inputs=[/17], perturbed=True), 0)]
+  BoundConv(name=/19, inputs=[/input, /3, /4], perturbed=True): [(BoundRelu(name=/input.4, inputs=[/19], perturbed=True), 0)]
+  BoundAdd(name=/23, inputs=[/21, /22], perturbed=True): [(BoundRelu(name=/input.8, inputs=[/23], perturbed=True), 0)]
+  BoundConv(name=/25, inputs=[/input.8, /9, /10], perturbed=True): [(BoundRelu(name=/input.12, inputs=[/25], perturbed=True), 0)]
+  BoundAdd(name=/28, inputs=[/27, /input.8], perturbed=True): [(BoundRelu(name=/29, inputs=[/28], perturbed=True), 0)]
+  BoundLinear(name=/40, inputs=[/39, /13, /14], perturbed=True): [(BoundRelu(name=/41, inputs=[/40], perturbed=True), 0)]
+Nonlinear functions:
+   BoundRelu(name=/input, inputs=[/17], perturbed=True)
+   BoundRelu(name=/input.4, inputs=[/19], perturbed=True)
+   BoundRelu(name=/input.8, inputs=[/23], perturbed=True)
+   BoundRelu(name=/input.12, inputs=[/25], perturbed=True)
+   BoundRelu(name=/29, inputs=[/28], perturbed=True)
+   BoundRelu(name=/41, inputs=[/40], perturbed=True)
+layer /input using sparse-features alpha with shape [182]; unstable size 182; total size 2048 ([1, 8, 16, 16])
+layer /input start_node /19 using sparse-spec alpha [2, 48, 1, 182] with unstable size 47 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /23 using sparse-spec alpha [2, 39, 1, 182] with unstable size 38 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /25 using sparse-spec alpha [2, 46, 1, 182] with unstable size 45 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /28 using sparse-spec alpha [2, 69, 1, 182] with unstable size 68 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /40 using sparse-spec alpha [2, 5, 1, 182] with unstable size 4 total_size 100 output_shape torch.Size([100])
+layer /input start_node /42 using full alpha [2, 9, 1, 182] with unstable size None total_size 9 output_shape 9
+layer /input.4 using sparse-features alpha with shape [47]; unstable size 47; total size 1024 ([1, 16, 8, 8])
+layer /input.4 start_node /23 using sparse-spec alpha [2, 39, 1, 47] with unstable size 38 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /25 using sparse-spec alpha [2, 46, 1, 47] with unstable size 45 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /28 using sparse-spec alpha [2, 69, 1, 47] with unstable size 68 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /40 using sparse-spec alpha [2, 5, 1, 47] with unstable size 4 total_size 100 output_shape torch.Size([100])
+layer /input.4 start_node /42 using full alpha [2, 9, 1, 47] with unstable size None total_size 9 output_shape 9
+layer /input.8 using sparse-features alpha with shape [38]; unstable size 38; total size 1024 ([1, 16, 8, 8])
+layer /input.8 start_node /25 using sparse-spec alpha [2, 46, 1, 38] with unstable size 45 total_size 1024 output_shape (16, 8, 8)
+layer /input.8 start_node /28 using sparse-spec alpha [2, 69, 1, 38] with unstable size 68 total_size 1024 output_shape (16, 8, 8)
+layer /input.8 start_node /40 using sparse-spec alpha [2, 5, 1, 38] with unstable size 4 total_size 100 output_shape torch.Size([100])
+layer /input.8 start_node /42 using full alpha [2, 9, 1, 38] with unstable size None total_size 9 output_shape 9
+layer /input.12 using sparse-features alpha with shape [45]; unstable size 45; total size 1024 ([1, 16, 8, 8])
+layer /input.12 start_node /28 using sparse-spec alpha [2, 69, 1, 45] with unstable size 68 total_size 1024 output_shape (16, 8, 8)
+layer /input.12 start_node /40 using sparse-spec alpha [2, 5, 1, 45] with unstable size 4 total_size 100 output_shape torch.Size([100])
+layer /input.12 start_node /42 using full alpha [2, 9, 1, 45] with unstable size None total_size 9 output_shape 9
+layer /29 using sparse-features alpha with shape [68]; unstable size 68; total size 1024 ([1, 16, 8, 8])
+layer /29 start_node /40 using sparse-spec alpha [2, 5, 1, 68] with unstable size 4 total_size 100 output_shape torch.Size([100])
+layer /29 start_node /42 using full alpha [2, 9, 1, 68] with unstable size None total_size 9 output_shape 9
+layer /41 using sparse-features alpha with shape [4]; unstable size 4; total size 100 ([1, 100])
+layer /41 start_node /42 using full alpha [2, 9, 1, 4] with unstable size None total_size 9 output_shape 9
+Optimizable variables initialized.
+initial CROWN bounds: tensor([[1.83694911, 1.25018072, 5.66926718, 5.07946205, 5.84435463, 5.55354786,
+         7.90839863, 6.19133806, 2.16965413]], device='cuda:0') None
+Verified with initial CROWN!
+verified with init bound!
+Result: safe-incomplete in 0.3995 seconds
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% idx: 3, vnnlib ID: 3 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Attack parameters: initialization=uniform, steps=100, restarts=30, alpha=0.008052505552768707, initialization=uniform, GAMA=False
+Model output of first 5 examples:
+ tensor([[ 4.08267498,  0.40561128,  1.58225298, -1.47285354,  1.30824947,
+         -2.65734029, -3.33492136, -1.34458339,  2.85269403, -1.42187512]],
+       device='cuda:0')
+Adv example prediction (first 2 examples and 2 restarts):
+ tensor([[[ 3.83432913,  0.53052855,  1.38773358, -1.41508329,  1.15218401,
+          -2.66070461, -3.32406569, -1.48392653,  3.32104039, -1.34212720],
+         [ 3.83432913,  0.53052855,  1.38773358, -1.41508329,  1.15218401,
+          -2.66070461, -3.32406569, -1.48392653,  3.32104039, -1.34212720]]],
+       device='cuda:0')
+PGD attack margin (first 2 examles and 10 specs):
+ tensor([[[3.30380058, 2.44659567, 5.24941254, 2.68214512, 6.49503374,
+          7.15839481, 5.31825542, 0.51328874, 5.17645645]]], device='cuda:0')
+number of violation:  0
+Attack finished in 0.2595 seconds.
+PGD attack failed
+Model: BoundedModule(
+  (/input.1): BoundInput(name=/input.1, inputs=[], perturbed=True)
+  (/1): BoundParams(name=/1, inputs=[], perturbed=False)
+  (/2): BoundParams(name=/2, inputs=[], perturbed=False)
+  (/3): BoundParams(name=/3, inputs=[], perturbed=False)
+  (/4): BoundParams(name=/4, inputs=[], perturbed=False)
+  (/5): BoundParams(name=/5, inputs=[], perturbed=False)
+  (/6): BoundParams(name=/6, inputs=[], perturbed=False)
+  (/7): BoundParams(name=/7, inputs=[], perturbed=False)
+  (/8): BoundParams(name=/8, inputs=[], perturbed=False)
+  (/9): BoundParams(name=/9, inputs=[], perturbed=False)
+  (/10): BoundParams(name=/10, inputs=[], perturbed=False)
+  (/11): BoundParams(name=/11, inputs=[], perturbed=False)
+  (/12): BoundParams(name=/12, inputs=[], perturbed=False)
+  (/13): BoundParams(name=/13, inputs=[], perturbed=False)
+  (/14): BoundParams(name=/14, inputs=[], perturbed=False)
+  (/15): BoundParams(name=/15, inputs=[], perturbed=False)
+  (/16): BoundParams(name=/16, inputs=[], perturbed=False)
+  (/17): BoundConv(name=/17, inputs=[/input.1, /1, /2], perturbed=True)
+  (/input): BoundRelu(name=/input, inputs=[/17], perturbed=True)
+  (/19): BoundConv(name=/19, inputs=[/input, /3, /4], perturbed=True)
+  (/input.4): BoundRelu(name=/input.4, inputs=[/19], perturbed=True)
+  (/21): BoundConv(name=/21, inputs=[/input.4, /5, /6], perturbed=True)
+  (/22): BoundConv(name=/22, inputs=[/input, /7, /8], perturbed=True)
+  (/23): BoundAdd(name=/23, inputs=[/21, /22], perturbed=True)
+  (/input.8): BoundRelu(name=/input.8, inputs=[/23], perturbed=True)
+  (/25): BoundConv(name=/25, inputs=[/input.8, /9, /10], perturbed=True)
+  (/input.12): BoundRelu(name=/input.12, inputs=[/25], perturbed=True)
+  (/27): BoundConv(name=/27, inputs=[/input.12, /11, /12], perturbed=True)
+  (/28): BoundAdd(name=/28, inputs=[/27, /input.8], perturbed=True)
+  (/29): BoundRelu(name=/29, inputs=[/28], perturbed=True)
+  (/30): BoundShape(name=/30, inputs=[/29], perturbed=False)
+  (/31): BoundConstant(name=/31, value=0)
+  (/32): BoundGather(name=/32, inputs=[/30, /31], perturbed=False)
+  (/33): BoundConstant(name=/33, value=-1)
+  (/34): BoundConstant(name=/34, value=tensor([0], device='cuda:0'))
+  (/35): BoundUnsqueeze(name=/35, inputs=[/32, /34], perturbed=False)
+  (/36): BoundConstant(name=/36, value=tensor([0], device='cuda:0'))
+  (/37): BoundUnsqueeze(name=/37, inputs=[/33, /36], perturbed=False)
+  (/38): BoundConcat(name=/38, inputs=[/35, /37], perturbed=False)
+  (/39): BoundReshape(name=/39, inputs=[/29, /38], perturbed=True)
+  (/40): BoundLinear(name=/40, inputs=[/39, /13, /14], perturbed=True)
+  (/41): BoundRelu(name=/41, inputs=[/40], perturbed=True)
+  (/42): BoundLinear(name=/42, inputs=[/41, /15, /16], perturbed=True)
+)
+Original output: tensor([[ 4.08267498,  0.40561092,  1.58225310, -1.47285342,  1.30824971,
+         -2.65734005, -3.33492112, -1.34458315,  2.85269380, -1.42187500]],
+       device='cuda:0')
+Split layers:
+  BoundConv(name=/17, inputs=[/input.1, /1, /2], perturbed=True): [(BoundRelu(name=/input, inputs=[/17], perturbed=True), 0)]
+  BoundConv(name=/19, inputs=[/input, /3, /4], perturbed=True): [(BoundRelu(name=/input.4, inputs=[/19], perturbed=True), 0)]
+  BoundAdd(name=/23, inputs=[/21, /22], perturbed=True): [(BoundRelu(name=/input.8, inputs=[/23], perturbed=True), 0)]
+  BoundConv(name=/25, inputs=[/input.8, /9, /10], perturbed=True): [(BoundRelu(name=/input.12, inputs=[/25], perturbed=True), 0)]
+  BoundAdd(name=/28, inputs=[/27, /input.8], perturbed=True): [(BoundRelu(name=/29, inputs=[/28], perturbed=True), 0)]
+  BoundLinear(name=/40, inputs=[/39, /13, /14], perturbed=True): [(BoundRelu(name=/41, inputs=[/40], perturbed=True), 0)]
+Nonlinear functions:
+   BoundRelu(name=/input, inputs=[/17], perturbed=True)
+   BoundRelu(name=/input.4, inputs=[/19], perturbed=True)
+   BoundRelu(name=/input.8, inputs=[/23], perturbed=True)
+   BoundRelu(name=/input.12, inputs=[/25], perturbed=True)
+   BoundRelu(name=/29, inputs=[/28], perturbed=True)
+   BoundRelu(name=/41, inputs=[/40], perturbed=True)
+layer /input using sparse-features alpha with shape [250]; unstable size 250; total size 2048 ([1, 8, 16, 16])
+layer /input start_node /19 using sparse-spec alpha [2, 68, 1, 250] with unstable size 67 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /23 using sparse-spec alpha [2, 43, 1, 250] with unstable size 42 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /25 using sparse-spec alpha [2, 27, 1, 250] with unstable size 26 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /28 using sparse-spec alpha [2, 69, 1, 250] with unstable size 68 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /40 using sparse-spec alpha [2, 10, 1, 250] with unstable size 9 total_size 100 output_shape torch.Size([100])
+layer /input start_node /42 using full alpha [2, 9, 1, 250] with unstable size None total_size 9 output_shape 9
+layer /input.4 using sparse-features alpha with shape [67]; unstable size 67; total size 1024 ([1, 16, 8, 8])
+layer /input.4 start_node /23 using sparse-spec alpha [2, 43, 1, 67] with unstable size 42 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /25 using sparse-spec alpha [2, 27, 1, 67] with unstable size 26 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /28 using sparse-spec alpha [2, 69, 1, 67] with unstable size 68 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /40 using sparse-spec alpha [2, 10, 1, 67] with unstable size 9 total_size 100 output_shape torch.Size([100])
+layer /input.4 start_node /42 using full alpha [2, 9, 1, 67] with unstable size None total_size 9 output_shape 9
+layer /input.8 using sparse-features alpha with shape [42]; unstable size 42; total size 1024 ([1, 16, 8, 8])
+layer /input.8 start_node /25 using sparse-spec alpha [2, 27, 1, 42] with unstable size 26 total_size 1024 output_shape (16, 8, 8)
+layer /input.8 start_node /28 using sparse-spec alpha [2, 69, 1, 42] with unstable size 68 total_size 1024 output_shape (16, 8, 8)
+layer /input.8 start_node /40 using sparse-spec alpha [2, 10, 1, 42] with unstable size 9 total_size 100 output_shape torch.Size([100])
+layer /input.8 start_node /42 using full alpha [2, 9, 1, 42] with unstable size None total_size 9 output_shape 9
+layer /input.12 using sparse-features alpha with shape [26]; unstable size 26; total size 1024 ([1, 16, 8, 8])
+layer /input.12 start_node /28 using sparse-spec alpha [2, 69, 1, 26] with unstable size 68 total_size 1024 output_shape (16, 8, 8)
+layer /input.12 start_node /40 using sparse-spec alpha [2, 10, 1, 26] with unstable size 9 total_size 100 output_shape torch.Size([100])
+layer /input.12 start_node /42 using full alpha [2, 9, 1, 26] with unstable size None total_size 9 output_shape 9
+layer /29 using sparse-features alpha with shape [68]; unstable size 68; total size 1024 ([1, 16, 8, 8])
+layer /29 start_node /40 using sparse-spec alpha [2, 10, 1, 68] with unstable size 9 total_size 100 output_shape torch.Size([100])
+layer /29 start_node /42 using full alpha [2, 9, 1, 68] with unstable size None total_size 9 output_shape 9
+layer /41 using sparse-features alpha with shape [9]; unstable size 9; total size 100 ([1, 100])
+layer /41 start_node /42 using full alpha [2, 9, 1, 9] with unstable size None total_size 9 output_shape 9
+Optimizable variables initialized.
+initial CROWN bounds: tensor([[3.23526645, 2.21572208, 5.18873644, 2.44000149, 6.33411360, 6.98840046,
+         5.07021046, 0.93748951, 5.12768269]], device='cuda:0') None
+Verified with initial CROWN!
+verified with init bound!
+Result: safe-incomplete in 0.3846 seconds
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% idx: 4, vnnlib ID: 4 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Attack parameters: initialization=uniform, steps=100, restarts=30, alpha=0.008052505552768707, initialization=uniform, GAMA=False
+Model output of first 5 examples:
+ tensor([[-3.74366498, -2.44937134,  2.21481419,  2.57808709,  2.91807556,
+          1.40288842,  5.42217636, -2.61973476, -2.56108332, -3.16220522]],
+       device='cuda:0')
+Adv example prediction (first 2 examples and 2 restarts):
+ tensor([[[-3.61919713, -2.58876991,  2.25946832,  2.51331902,  3.14704800,
+           1.50243962,  4.85696220, -2.26166272, -2.56817627, -3.24144459],
+         [-3.61919713, -2.58876991,  2.25946832,  2.51331902,  3.14704800,
+           1.50243962,  4.85696220, -2.26166272, -2.56817627, -3.24144459]]],
+       device='cuda:0')
+PGD attack margin (first 2 examles and 10 specs):
+ tensor([[[8.47615910, 7.44573212, 2.59749389, 2.34364319, 1.70991421,
+          3.35452271, 7.11862469, 7.42513847, 8.09840679]]], device='cuda:0')
+number of violation:  0
+Attack finished in 0.2749 seconds.
+PGD attack failed
+Model: BoundedModule(
+  (/input.1): BoundInput(name=/input.1, inputs=[], perturbed=True)
+  (/1): BoundParams(name=/1, inputs=[], perturbed=False)
+  (/2): BoundParams(name=/2, inputs=[], perturbed=False)
+  (/3): BoundParams(name=/3, inputs=[], perturbed=False)
+  (/4): BoundParams(name=/4, inputs=[], perturbed=False)
+  (/5): BoundParams(name=/5, inputs=[], perturbed=False)
+  (/6): BoundParams(name=/6, inputs=[], perturbed=False)
+  (/7): BoundParams(name=/7, inputs=[], perturbed=False)
+  (/8): BoundParams(name=/8, inputs=[], perturbed=False)
+  (/9): BoundParams(name=/9, inputs=[], perturbed=False)
+  (/10): BoundParams(name=/10, inputs=[], perturbed=False)
+  (/11): BoundParams(name=/11, inputs=[], perturbed=False)
+  (/12): BoundParams(name=/12, inputs=[], perturbed=False)
+  (/13): BoundParams(name=/13, inputs=[], perturbed=False)
+  (/14): BoundParams(name=/14, inputs=[], perturbed=False)
+  (/15): BoundParams(name=/15, inputs=[], perturbed=False)
+  (/16): BoundParams(name=/16, inputs=[], perturbed=False)
+  (/17): BoundConv(name=/17, inputs=[/input.1, /1, /2], perturbed=True)
+  (/input): BoundRelu(name=/input, inputs=[/17], perturbed=True)
+  (/19): BoundConv(name=/19, inputs=[/input, /3, /4], perturbed=True)
+  (/input.4): BoundRelu(name=/input.4, inputs=[/19], perturbed=True)
+  (/21): BoundConv(name=/21, inputs=[/input.4, /5, /6], perturbed=True)
+  (/22): BoundConv(name=/22, inputs=[/input, /7, /8], perturbed=True)
+  (/23): BoundAdd(name=/23, inputs=[/21, /22], perturbed=True)
+  (/input.8): BoundRelu(name=/input.8, inputs=[/23], perturbed=True)
+  (/25): BoundConv(name=/25, inputs=[/input.8, /9, /10], perturbed=True)
+  (/input.12): BoundRelu(name=/input.12, inputs=[/25], perturbed=True)
+  (/27): BoundConv(name=/27, inputs=[/input.12, /11, /12], perturbed=True)
+  (/28): BoundAdd(name=/28, inputs=[/27, /input.8], perturbed=True)
+  (/29): BoundRelu(name=/29, inputs=[/28], perturbed=True)
+  (/30): BoundShape(name=/30, inputs=[/29], perturbed=False)
+  (/31): BoundConstant(name=/31, value=0)
+  (/32): BoundGather(name=/32, inputs=[/30, /31], perturbed=False)
+  (/33): BoundConstant(name=/33, value=-1)
+  (/34): BoundConstant(name=/34, value=tensor([0], device='cuda:0'))
+  (/35): BoundUnsqueeze(name=/35, inputs=[/32, /34], perturbed=False)
+  (/36): BoundConstant(name=/36, value=tensor([0], device='cuda:0'))
+  (/37): BoundUnsqueeze(name=/37, inputs=[/33, /36], perturbed=False)
+  (/38): BoundConcat(name=/38, inputs=[/35, /37], perturbed=False)
+  (/39): BoundReshape(name=/39, inputs=[/29, /38], perturbed=True)
+  (/40): BoundLinear(name=/40, inputs=[/39, /13, /14], perturbed=True)
+  (/41): BoundRelu(name=/41, inputs=[/40], perturbed=True)
+  (/42): BoundLinear(name=/42, inputs=[/41, /15, /16], perturbed=True)
+)
+Original output: tensor([[-3.74366522, -2.44937134,  2.21481419,  2.57808709,  2.91807532,
+          1.40288854,  5.42217636, -2.61973476, -2.56108332, -3.16220522]],
+       device='cuda:0')
+Split layers:
+  BoundConv(name=/17, inputs=[/input.1, /1, /2], perturbed=True): [(BoundRelu(name=/input, inputs=[/17], perturbed=True), 0)]
+  BoundConv(name=/19, inputs=[/input, /3, /4], perturbed=True): [(BoundRelu(name=/input.4, inputs=[/19], perturbed=True), 0)]
+  BoundAdd(name=/23, inputs=[/21, /22], perturbed=True): [(BoundRelu(name=/input.8, inputs=[/23], perturbed=True), 0)]
+  BoundConv(name=/25, inputs=[/input.8, /9, /10], perturbed=True): [(BoundRelu(name=/input.12, inputs=[/25], perturbed=True), 0)]
+  BoundAdd(name=/28, inputs=[/27, /input.8], perturbed=True): [(BoundRelu(name=/29, inputs=[/28], perturbed=True), 0)]
+  BoundLinear(name=/40, inputs=[/39, /13, /14], perturbed=True): [(BoundRelu(name=/41, inputs=[/40], perturbed=True), 0)]
+Nonlinear functions:
+   BoundRelu(name=/input, inputs=[/17], perturbed=True)
+   BoundRelu(name=/input.4, inputs=[/19], perturbed=True)
+   BoundRelu(name=/input.8, inputs=[/23], perturbed=True)
+   BoundRelu(name=/input.12, inputs=[/25], perturbed=True)
+   BoundRelu(name=/29, inputs=[/28], perturbed=True)
+   BoundRelu(name=/41, inputs=[/40], perturbed=True)
+layer /input using sparse-features alpha with shape [165]; unstable size 165; total size 2048 ([1, 8, 16, 16])
+layer /input start_node /19 using sparse-spec alpha [2, 38, 1, 165] with unstable size 37 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /23 using sparse-spec alpha [2, 47, 1, 165] with unstable size 46 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /25 using sparse-spec alpha [2, 45, 1, 165] with unstable size 44 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /28 using sparse-spec alpha [2, 91, 1, 165] with unstable size 90 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /40 using sparse-spec alpha [2, 11, 1, 165] with unstable size 10 total_size 100 output_shape torch.Size([100])
+layer /input start_node /42 using full alpha [2, 9, 1, 165] with unstable size None total_size 9 output_shape 9
+layer /input.4 using sparse-features alpha with shape [37]; unstable size 37; total size 1024 ([1, 16, 8, 8])
+layer /input.4 start_node /23 using sparse-spec alpha [2, 47, 1, 37] with unstable size 46 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /25 using sparse-spec alpha [2, 45, 1, 37] with unstable size 44 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /28 using sparse-spec alpha [2, 91, 1, 37] with unstable size 90 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /40 using sparse-spec alpha [2, 11, 1, 37] with unstable size 10 total_size 100 output_shape torch.Size([100])
+layer /input.4 start_node /42 using full alpha [2, 9, 1, 37] with unstable size None total_size 9 output_shape 9
+layer /input.8 using sparse-features alpha with shape [46]; unstable size 46; total size 1024 ([1, 16, 8, 8])
+layer /input.8 start_node /25 using sparse-spec alpha [2, 45, 1, 46] with unstable size 44 total_size 1024 output_shape (16, 8, 8)
+layer /input.8 start_node /28 using sparse-spec alpha [2, 91, 1, 46] with unstable size 90 total_size 1024 output_shape (16, 8, 8)
+layer /input.8 start_node /40 using sparse-spec alpha [2, 11, 1, 46] with unstable size 10 total_size 100 output_shape torch.Size([100])
+layer /input.8 start_node /42 using full alpha [2, 9, 1, 46] with unstable size None total_size 9 output_shape 9
+layer /input.12 using sparse-features alpha with shape [44]; unstable size 44; total size 1024 ([1, 16, 8, 8])
+layer /input.12 start_node /28 using sparse-spec alpha [2, 91, 1, 44] with unstable size 90 total_size 1024 output_shape (16, 8, 8)
+layer /input.12 start_node /40 using sparse-spec alpha [2, 11, 1, 44] with unstable size 10 total_size 100 output_shape torch.Size([100])
+layer /input.12 start_node /42 using full alpha [2, 9, 1, 44] with unstable size None total_size 9 output_shape 9
+layer /29 using sparse-features alpha with shape [90]; unstable size 90; total size 1024 ([1, 16, 8, 8])
+layer /29 start_node /40 using sparse-spec alpha [2, 11, 1, 90] with unstable size 10 total_size 100 output_shape torch.Size([100])
+layer /29 start_node /42 using full alpha [2, 9, 1, 90] with unstable size None total_size 9 output_shape 9
+layer /41 using sparse-features alpha with shape [10]; unstable size 10; total size 100 ([1, 100])
+layer /41 start_node /42 using full alpha [2, 9, 1, 10] with unstable size None total_size 9 output_shape 9
+Optimizable variables initialized.
+initial CROWN bounds: tensor([[8.75760651, 7.42114449, 2.91125774, 2.54223776, 2.19681406, 3.65891743,
+         7.58941126, 7.52930832, 8.12778282]], device='cuda:0') None
+Verified with initial CROWN!
+verified with init bound!
+Result: safe-incomplete in 0.3951 seconds
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% idx: 5, vnnlib ID: 5 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Attack parameters: initialization=uniform, steps=100, restarts=30, alpha=0.008052505552768707, initialization=uniform, GAMA=False
+Model output of first 5 examples:
+ tensor([[-1.20927012, -1.67409551,  0.86702472,  1.56677437,  0.71970499,
+          0.72044796,  2.92726874, -0.73844296, -2.54333949, -0.63613749]],
+       device='cuda:0')
+Adv example prediction (first 2 examples and 2 restarts):
+ tensor([[[-1.32314432, -1.78275657,  0.78649253,  1.75626910,  0.66831505,
+           0.96151561,  2.60651517, -0.58266246, -2.50507045, -0.58553982],
+         [-1.32314432, -1.78275657,  0.78649253,  1.75626910,  0.66831505,
+           0.96151561,  2.60651517, -0.58266246, -2.50507045, -0.58553982]]],
+       device='cuda:0')
+PGD attack margin (first 2 examles and 10 specs):
+ tensor([[[3.92965937, 4.38927174, 1.82002258, 0.85024607, 1.93820012,
+          1.64499950, 3.18917751, 5.11158562, 3.19205499]]], device='cuda:0')
+number of violation:  0
+Attack finished in 0.2411 seconds.
+PGD attack failed
+Model: BoundedModule(
+  (/input.1): BoundInput(name=/input.1, inputs=[], perturbed=True)
+  (/1): BoundParams(name=/1, inputs=[], perturbed=False)
+  (/2): BoundParams(name=/2, inputs=[], perturbed=False)
+  (/3): BoundParams(name=/3, inputs=[], perturbed=False)
+  (/4): BoundParams(name=/4, inputs=[], perturbed=False)
+  (/5): BoundParams(name=/5, inputs=[], perturbed=False)
+  (/6): BoundParams(name=/6, inputs=[], perturbed=False)
+  (/7): BoundParams(name=/7, inputs=[], perturbed=False)
+  (/8): BoundParams(name=/8, inputs=[], perturbed=False)
+  (/9): BoundParams(name=/9, inputs=[], perturbed=False)
+  (/10): BoundParams(name=/10, inputs=[], perturbed=False)
+  (/11): BoundParams(name=/11, inputs=[], perturbed=False)
+  (/12): BoundParams(name=/12, inputs=[], perturbed=False)
+  (/13): BoundParams(name=/13, inputs=[], perturbed=False)
+  (/14): BoundParams(name=/14, inputs=[], perturbed=False)
+  (/15): BoundParams(name=/15, inputs=[], perturbed=False)
+  (/16): BoundParams(name=/16, inputs=[], perturbed=False)
+  (/17): BoundConv(name=/17, inputs=[/input.1, /1, /2], perturbed=True)
+  (/input): BoundRelu(name=/input, inputs=[/17], perturbed=True)
+  (/19): BoundConv(name=/19, inputs=[/input, /3, /4], perturbed=True)
+  (/input.4): BoundRelu(name=/input.4, inputs=[/19], perturbed=True)
+  (/21): BoundConv(name=/21, inputs=[/input.4, /5, /6], perturbed=True)
+  (/22): BoundConv(name=/22, inputs=[/input, /7, /8], perturbed=True)
+  (/23): BoundAdd(name=/23, inputs=[/21, /22], perturbed=True)
+  (/input.8): BoundRelu(name=/input.8, inputs=[/23], perturbed=True)
+  (/25): BoundConv(name=/25, inputs=[/input.8, /9, /10], perturbed=True)
+  (/input.12): BoundRelu(name=/input.12, inputs=[/25], perturbed=True)
+  (/27): BoundConv(name=/27, inputs=[/input.12, /11, /12], perturbed=True)
+  (/28): BoundAdd(name=/28, inputs=[/27, /input.8], perturbed=True)
+  (/29): BoundRelu(name=/29, inputs=[/28], perturbed=True)
+  (/30): BoundShape(name=/30, inputs=[/29], perturbed=False)
+  (/31): BoundConstant(name=/31, value=0)
+  (/32): BoundGather(name=/32, inputs=[/30, /31], perturbed=False)
+  (/33): BoundConstant(name=/33, value=-1)
+  (/34): BoundConstant(name=/34, value=tensor([0], device='cuda:0'))
+  (/35): BoundUnsqueeze(name=/35, inputs=[/32, /34], perturbed=False)
+  (/36): BoundConstant(name=/36, value=tensor([0], device='cuda:0'))
+  (/37): BoundUnsqueeze(name=/37, inputs=[/33, /36], perturbed=False)
+  (/38): BoundConcat(name=/38, inputs=[/35, /37], perturbed=False)
+  (/39): BoundReshape(name=/39, inputs=[/29, /38], perturbed=True)
+  (/40): BoundLinear(name=/40, inputs=[/39, /13, /14], perturbed=True)
+  (/41): BoundRelu(name=/41, inputs=[/40], perturbed=True)
+  (/42): BoundLinear(name=/42, inputs=[/41, /15, /16], perturbed=True)
+)
+Original output: tensor([[-1.20927012, -1.67409551,  0.86702472,  1.56677425,  0.71970487,
+          0.72044796,  2.92726851, -0.73844296, -2.54333949, -0.63613749]],
+       device='cuda:0')
+Split layers:
+  BoundConv(name=/17, inputs=[/input.1, /1, /2], perturbed=True): [(BoundRelu(name=/input, inputs=[/17], perturbed=True), 0)]
+  BoundConv(name=/19, inputs=[/input, /3, /4], perturbed=True): [(BoundRelu(name=/input.4, inputs=[/19], perturbed=True), 0)]
+  BoundAdd(name=/23, inputs=[/21, /22], perturbed=True): [(BoundRelu(name=/input.8, inputs=[/23], perturbed=True), 0)]
+  BoundConv(name=/25, inputs=[/input.8, /9, /10], perturbed=True): [(BoundRelu(name=/input.12, inputs=[/25], perturbed=True), 0)]
+  BoundAdd(name=/28, inputs=[/27, /input.8], perturbed=True): [(BoundRelu(name=/29, inputs=[/28], perturbed=True), 0)]
+  BoundLinear(name=/40, inputs=[/39, /13, /14], perturbed=True): [(BoundRelu(name=/41, inputs=[/40], perturbed=True), 0)]
+Nonlinear functions:
+   BoundRelu(name=/input, inputs=[/17], perturbed=True)
+   BoundRelu(name=/input.4, inputs=[/19], perturbed=True)
+   BoundRelu(name=/input.8, inputs=[/23], perturbed=True)
+   BoundRelu(name=/input.12, inputs=[/25], perturbed=True)
+   BoundRelu(name=/29, inputs=[/28], perturbed=True)
+   BoundRelu(name=/41, inputs=[/40], perturbed=True)
+layer /input using sparse-features alpha with shape [166]; unstable size 166; total size 2048 ([1, 8, 16, 16])
+layer /input start_node /19 using sparse-spec alpha [2, 65, 1, 166] with unstable size 64 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /23 using sparse-spec alpha [2, 52, 1, 166] with unstable size 51 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /25 using sparse-spec alpha [2, 58, 1, 166] with unstable size 57 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /28 using sparse-spec alpha [2, 68, 1, 166] with unstable size 67 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /40 using sparse-spec alpha [2, 11, 1, 166] with unstable size 10 total_size 100 output_shape torch.Size([100])
+layer /input start_node /42 using full alpha [2, 9, 1, 166] with unstable size None total_size 9 output_shape 9
+layer /input.4 using sparse-features alpha with shape [64]; unstable size 64; total size 1024 ([1, 16, 8, 8])
+layer /input.4 start_node /23 using sparse-spec alpha [2, 52, 1, 64] with unstable size 51 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /25 using sparse-spec alpha [2, 58, 1, 64] with unstable size 57 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /28 using sparse-spec alpha [2, 68, 1, 64] with unstable size 67 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /40 using sparse-spec alpha [2, 11, 1, 64] with unstable size 10 total_size 100 output_shape torch.Size([100])
+layer /input.4 start_node /42 using full alpha [2, 9, 1, 64] with unstable size None total_size 9 output_shape 9
+layer /input.8 using sparse-features alpha with shape [51]; unstable size 51; total size 1024 ([1, 16, 8, 8])
+layer /input.8 start_node /25 using sparse-spec alpha [2, 58, 1, 51] with unstable size 57 total_size 1024 output_shape (16, 8, 8)
+layer /input.8 start_node /28 using sparse-spec alpha [2, 68, 1, 51] with unstable size 67 total_size 1024 output_shape (16, 8, 8)
+layer /input.8 start_node /40 using sparse-spec alpha [2, 11, 1, 51] with unstable size 10 total_size 100 output_shape torch.Size([100])
+layer /input.8 start_node /42 using full alpha [2, 9, 1, 51] with unstable size None total_size 9 output_shape 9
+layer /input.12 using sparse-features alpha with shape [57]; unstable size 57; total size 1024 ([1, 16, 8, 8])
+layer /input.12 start_node /28 using sparse-spec alpha [2, 68, 1, 57] with unstable size 67 total_size 1024 output_shape (16, 8, 8)
+layer /input.12 start_node /40 using sparse-spec alpha [2, 11, 1, 57] with unstable size 10 total_size 100 output_shape torch.Size([100])
+layer /input.12 start_node /42 using full alpha [2, 9, 1, 57] with unstable size None total_size 9 output_shape 9
+layer /29 using sparse-features alpha with shape [67]; unstable size 67; total size 1024 ([1, 16, 8, 8])
+layer /29 start_node /40 using sparse-spec alpha [2, 11, 1, 67] with unstable size 10 total_size 100 output_shape torch.Size([100])
+layer /29 start_node /42 using full alpha [2, 9, 1, 67] with unstable size None total_size 9 output_shape 9
+layer /41 using sparse-features alpha with shape [10]; unstable size 10; total size 100 ([1, 100])
+layer /41 start_node /42 using full alpha [2, 9, 1, 10] with unstable size None total_size 9 output_shape 9
+Optimizable variables initialized.
+initial CROWN bounds: tensor([[3.76026249, 4.16952324, 1.82407832, 1.15159273, 1.96502674, 1.95259702,
+         3.32606602, 5.07033491, 3.12211466]], device='cuda:0') None
+Verified with initial CROWN!
+verified with init bound!
+Result: safe-incomplete in 0.3676 seconds
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% idx: 6, vnnlib ID: 6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Attack parameters: initialization=uniform, steps=100, restarts=30, alpha=0.008052527904510498, initialization=uniform, GAMA=False
+Model output of first 5 examples:
+ tensor([[ 0.45168680,  4.29493809, -2.46692514,  1.81116855, -3.79720092,
+          1.58700919, -0.86466342,  0.04442607, -2.72051096,  1.65998757]],
+       device='cuda:0')
+Adv example prediction (first 2 examples and 2 restarts):
+ tensor([[[ 0.39680690,  3.64295053, -2.33813190,  2.08940649, -3.63066006,
+           1.99223685, -0.77696127,  0.23655592, -2.97257328,  1.36028254],
+         [ 0.39680690,  3.64295053, -2.33813190,  2.08940649, -3.63066006,
+           1.99223685, -0.77696127,  0.23655592, -2.97257328,  1.36028254]]],
+       device='cuda:0')
+PGD attack margin (first 2 examles and 10 specs):
+ tensor([[[3.24614358, 5.98108244, 1.55354404, 7.27361059, 1.65071368,
+          4.41991186, 3.40639472, 6.61552382, 2.28266811]]], device='cuda:0')
+number of violation:  0
+Attack finished in 0.2285 seconds.
+PGD attack failed
+Model: BoundedModule(
+  (/input.1): BoundInput(name=/input.1, inputs=[], perturbed=True)
+  (/1): BoundParams(name=/1, inputs=[], perturbed=False)
+  (/2): BoundParams(name=/2, inputs=[], perturbed=False)
+  (/3): BoundParams(name=/3, inputs=[], perturbed=False)
+  (/4): BoundParams(name=/4, inputs=[], perturbed=False)
+  (/5): BoundParams(name=/5, inputs=[], perturbed=False)
+  (/6): BoundParams(name=/6, inputs=[], perturbed=False)
+  (/7): BoundParams(name=/7, inputs=[], perturbed=False)
+  (/8): BoundParams(name=/8, inputs=[], perturbed=False)
+  (/9): BoundParams(name=/9, inputs=[], perturbed=False)
+  (/10): BoundParams(name=/10, inputs=[], perturbed=False)
+  (/11): BoundParams(name=/11, inputs=[], perturbed=False)
+  (/12): BoundParams(name=/12, inputs=[], perturbed=False)
+  (/13): BoundParams(name=/13, inputs=[], perturbed=False)
+  (/14): BoundParams(name=/14, inputs=[], perturbed=False)
+  (/15): BoundParams(name=/15, inputs=[], perturbed=False)
+  (/16): BoundParams(name=/16, inputs=[], perturbed=False)
+  (/17): BoundConv(name=/17, inputs=[/input.1, /1, /2], perturbed=True)
+  (/input): BoundRelu(name=/input, inputs=[/17], perturbed=True)
+  (/19): BoundConv(name=/19, inputs=[/input, /3, /4], perturbed=True)
+  (/input.4): BoundRelu(name=/input.4, inputs=[/19], perturbed=True)
+  (/21): BoundConv(name=/21, inputs=[/input.4, /5, /6], perturbed=True)
+  (/22): BoundConv(name=/22, inputs=[/input, /7, /8], perturbed=True)
+  (/23): BoundAdd(name=/23, inputs=[/21, /22], perturbed=True)
+  (/input.8): BoundRelu(name=/input.8, inputs=[/23], perturbed=True)
+  (/25): BoundConv(name=/25, inputs=[/input.8, /9, /10], perturbed=True)
+  (/input.12): BoundRelu(name=/input.12, inputs=[/25], perturbed=True)
+  (/27): BoundConv(name=/27, inputs=[/input.12, /11, /12], perturbed=True)
+  (/28): BoundAdd(name=/28, inputs=[/27, /input.8], perturbed=True)
+  (/29): BoundRelu(name=/29, inputs=[/28], perturbed=True)
+  (/30): BoundShape(name=/30, inputs=[/29], perturbed=False)
+  (/31): BoundConstant(name=/31, value=0)
+  (/32): BoundGather(name=/32, inputs=[/30, /31], perturbed=False)
+  (/33): BoundConstant(name=/33, value=-1)
+  (/34): BoundConstant(name=/34, value=tensor([0], device='cuda:0'))
+  (/35): BoundUnsqueeze(name=/35, inputs=[/32, /34], perturbed=False)
+  (/36): BoundConstant(name=/36, value=tensor([0], device='cuda:0'))
+  (/37): BoundUnsqueeze(name=/37, inputs=[/33, /36], perturbed=False)
+  (/38): BoundConcat(name=/38, inputs=[/35, /37], perturbed=False)
+  (/39): BoundReshape(name=/39, inputs=[/29, /38], perturbed=True)
+  (/40): BoundLinear(name=/40, inputs=[/39, /13, /14], perturbed=True)
+  (/41): BoundRelu(name=/41, inputs=[/40], perturbed=True)
+  (/42): BoundLinear(name=/42, inputs=[/41, /15, /16], perturbed=True)
+)
+Original output: tensor([[ 0.45168686,  4.29493856, -2.46692514,  1.81116855, -3.79720092,
+          1.58700907, -0.86466342,  0.04442634, -2.72051072,  1.65998793]],
+       device='cuda:0')
+Split layers:
+  BoundConv(name=/17, inputs=[/input.1, /1, /2], perturbed=True): [(BoundRelu(name=/input, inputs=[/17], perturbed=True), 0)]
+  BoundConv(name=/19, inputs=[/input, /3, /4], perturbed=True): [(BoundRelu(name=/input.4, inputs=[/19], perturbed=True), 0)]
+  BoundAdd(name=/23, inputs=[/21, /22], perturbed=True): [(BoundRelu(name=/input.8, inputs=[/23], perturbed=True), 0)]
+  BoundConv(name=/25, inputs=[/input.8, /9, /10], perturbed=True): [(BoundRelu(name=/input.12, inputs=[/25], perturbed=True), 0)]
+  BoundAdd(name=/28, inputs=[/27, /input.8], perturbed=True): [(BoundRelu(name=/29, inputs=[/28], perturbed=True), 0)]
+  BoundLinear(name=/40, inputs=[/39, /13, /14], perturbed=True): [(BoundRelu(name=/41, inputs=[/40], perturbed=True), 0)]
+Nonlinear functions:
+   BoundRelu(name=/input, inputs=[/17], perturbed=True)
+   BoundRelu(name=/input.4, inputs=[/19], perturbed=True)
+   BoundRelu(name=/input.8, inputs=[/23], perturbed=True)
+   BoundRelu(name=/input.12, inputs=[/25], perturbed=True)
+   BoundRelu(name=/29, inputs=[/28], perturbed=True)
+   BoundRelu(name=/41, inputs=[/40], perturbed=True)
+layer /input using sparse-features alpha with shape [222]; unstable size 222; total size 2048 ([1, 8, 16, 16])
+layer /input start_node /19 using sparse-spec alpha [2, 38, 1, 222] with unstable size 37 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /23 using sparse-spec alpha [2, 26, 1, 222] with unstable size 25 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /25 using sparse-spec alpha [2, 30, 1, 222] with unstable size 29 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /28 using sparse-spec alpha [2, 55, 1, 222] with unstable size 54 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /40 using sparse-spec alpha [2, 5, 1, 222] with unstable size 4 total_size 100 output_shape torch.Size([100])
+layer /input start_node /42 using full alpha [2, 9, 1, 222] with unstable size None total_size 9 output_shape 9
+layer /input.4 using sparse-features alpha with shape [37]; unstable size 37; total size 1024 ([1, 16, 8, 8])
+layer /input.4 start_node /23 using sparse-spec alpha [2, 26, 1, 37] with unstable size 25 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /25 using sparse-spec alpha [2, 30, 1, 37] with unstable size 29 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /28 using sparse-spec alpha [2, 55, 1, 37] with unstable size 54 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /40 using sparse-spec alpha [2, 5, 1, 37] with unstable size 4 total_size 100 output_shape torch.Size([100])
+layer /input.4 start_node /42 using full alpha [2, 9, 1, 37] with unstable size None total_size 9 output_shape 9
+layer /input.8 using sparse-features alpha with shape [25]; unstable size 25; total size 1024 ([1, 16, 8, 8])
+layer /input.8 start_node /25 using sparse-spec alpha [2, 30, 1, 25] with unstable size 29 total_size 1024 output_shape (16, 8, 8)
+layer /input.8 start_node /28 using sparse-spec alpha [2, 55, 1, 25] with unstable size 54 total_size 1024 output_shape (16, 8, 8)
+layer /input.8 start_node /40 using sparse-spec alpha [2, 5, 1, 25] with unstable size 4 total_size 100 output_shape torch.Size([100])
+layer /input.8 start_node /42 using full alpha [2, 9, 1, 25] with unstable size None total_size 9 output_shape 9
+layer /input.12 using sparse-features alpha with shape [29]; unstable size 29; total size 1024 ([1, 16, 8, 8])
+layer /input.12 start_node /28 using sparse-spec alpha [2, 55, 1, 29] with unstable size 54 total_size 1024 output_shape (16, 8, 8)
+layer /input.12 start_node /40 using sparse-spec alpha [2, 5, 1, 29] with unstable size 4 total_size 100 output_shape torch.Size([100])
+layer /input.12 start_node /42 using full alpha [2, 9, 1, 29] with unstable size None total_size 9 output_shape 9
+layer /29 using sparse-features alpha with shape [54]; unstable size 54; total size 1024 ([1, 16, 8, 8])
+layer /29 start_node /40 using sparse-spec alpha [2, 5, 1, 54] with unstable size 4 total_size 100 output_shape torch.Size([100])
+layer /29 start_node /42 using full alpha [2, 9, 1, 54] with unstable size None total_size 9 output_shape 9
+layer /41 using sparse-features alpha with shape [4]; unstable size 4; total size 100 ([1, 100])
+layer /41 start_node /42 using full alpha [2, 9, 1, 4] with unstable size None total_size 9 output_shape 9
+Optimizable variables initialized.
+initial CROWN bounds: tensor([[3.47015619, 6.39809179, 2.12861013, 7.69710875, 2.30134749, 4.77416182,
+         3.88822794, 6.72439289, 2.35146332]], device='cuda:0') None
+Verified with initial CROWN!
+verified with init bound!
+Result: safe-incomplete in 0.3510 seconds
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% idx: 7, vnnlib ID: 7 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Attack parameters: initialization=uniform, steps=100, restarts=30, alpha=0.008052527904510498, initialization=uniform, GAMA=False
+Model output of first 5 examples:
+ tensor([[ 0.02565093, -1.87907362,  2.17639112,  0.93898648,  1.78726339,
+          0.16023907,  1.32743466, -0.86109716, -1.64512098, -2.03066683]],
+       device='cuda:0')
+Clean prediction incorrect, attack skipped.
+Adv example prediction (first 2 examples and 2 restarts):
+ tensor([[[ 0.02565087, -1.87907374,  2.17639065,  0.93898636,  1.78726339,
+           0.16023907,  1.32743454, -0.86109716, -1.64512050, -2.03066683],
+         [ 0.02565087, -1.87907374,  2.17639065,  0.93898636,  1.78726339,
+           0.16023907,  1.32743454, -0.86109716, -1.64512050, -2.03066683]]],
+       device='cuda:0')
+PGD attack margin (first 2 examles and 10 specs):
+ tensor([[[ 1.30178368,  3.20650816, -0.84895611,  0.38844818, -0.45982885,
+           1.16719544,  2.18853164,  2.97255516,  3.35810137]]],
+       device='cuda:0')
+number of violation:  2
+Result: unsafe-pgd in 0.0054 seconds
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% idx: 8, vnnlib ID: 8 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Attack parameters: initialization=uniform, steps=100, restarts=30, alpha=0.008052527904510498, initialization=uniform, GAMA=False
+Model output of first 5 examples:
+ tensor([[-1.49289370, -3.35792828,  1.29429531,  2.73696876,  1.75463915,
+          2.85132360,  1.10570657,  1.21935749, -2.83914566, -3.27233744]],
+       device='cuda:0')
+Clean prediction incorrect, attack skipped.
+Adv example prediction (first 2 examples and 2 restarts):
+ tensor([[[-1.49289370, -3.35792875,  1.29429555,  2.73696899,  1.75463915,
+           2.85132432,  1.10570645,  1.21935761, -2.83914590, -3.27233744],
+         [-1.49289370, -3.35792875,  1.29429555,  2.73696899,  1.75463915,
+           2.85132432,  1.10570645,  1.21935761, -2.83914590, -3.27233744]]],
+       device='cuda:0')
+PGD attack margin (first 2 examles and 10 specs):
+ tensor([[[ 4.22986269,  6.09489775,  1.44267344,  0.98232985, -0.11435533,
+           1.63126254,  1.51761138,  5.57611465,  6.00930643]]],
+       device='cuda:0')
+number of violation:  1
+Result: unsafe-pgd in 0.0051 seconds
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% idx: 9, vnnlib ID: 9 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Attack parameters: initialization=uniform, steps=100, restarts=30, alpha=0.008052513003349304, initialization=uniform, GAMA=False
+Model output of first 5 examples:
+ tensor([[-0.63313615,  4.85708332, -0.16869251, -0.98798227, -2.18656683,
+         -2.58123875, -0.50507492, -2.77083325,  1.97494018,  3.00146914]],
+       device='cuda:0')
+Adv example prediction (first 2 examples and 2 restarts):
+ tensor([[[-0.61370790,  4.16302490, -0.25790590, -0.86661661, -1.97504258,
+          -2.38576794, -0.44123405, -2.49808621,  1.81485677,  3.06044960],
+         [-0.61370790,  4.16302490, -0.25790590, -0.86661661, -1.97504258,
+          -2.38576794, -0.44123405, -2.49808621,  1.81485677,  3.06044960]]],
+       device='cuda:0')
+PGD attack margin (first 2 examles and 10 specs):
+ tensor([[[4.77673292, 4.42093086, 5.02964163, 6.13806725, 6.54879284,
+          4.60425901, 6.66111088, 2.34816813, 1.10257530]]], device='cuda:0')
+number of violation:  0
+Attack finished in 0.2396 seconds.
+PGD attack failed
+Model: BoundedModule(
+  (/input.1): BoundInput(name=/input.1, inputs=[], perturbed=True)
+  (/1): BoundParams(name=/1, inputs=[], perturbed=False)
+  (/2): BoundParams(name=/2, inputs=[], perturbed=False)
+  (/3): BoundParams(name=/3, inputs=[], perturbed=False)
+  (/4): BoundParams(name=/4, inputs=[], perturbed=False)
+  (/5): BoundParams(name=/5, inputs=[], perturbed=False)
+  (/6): BoundParams(name=/6, inputs=[], perturbed=False)
+  (/7): BoundParams(name=/7, inputs=[], perturbed=False)
+  (/8): BoundParams(name=/8, inputs=[], perturbed=False)
+  (/9): BoundParams(name=/9, inputs=[], perturbed=False)
+  (/10): BoundParams(name=/10, inputs=[], perturbed=False)
+  (/11): BoundParams(name=/11, inputs=[], perturbed=False)
+  (/12): BoundParams(name=/12, inputs=[], perturbed=False)
+  (/13): BoundParams(name=/13, inputs=[], perturbed=False)
+  (/14): BoundParams(name=/14, inputs=[], perturbed=False)
+  (/15): BoundParams(name=/15, inputs=[], perturbed=False)
+  (/16): BoundParams(name=/16, inputs=[], perturbed=False)
+  (/17): BoundConv(name=/17, inputs=[/input.1, /1, /2], perturbed=True)
+  (/input): BoundRelu(name=/input, inputs=[/17], perturbed=True)
+  (/19): BoundConv(name=/19, inputs=[/input, /3, /4], perturbed=True)
+  (/input.4): BoundRelu(name=/input.4, inputs=[/19], perturbed=True)
+  (/21): BoundConv(name=/21, inputs=[/input.4, /5, /6], perturbed=True)
+  (/22): BoundConv(name=/22, inputs=[/input, /7, /8], perturbed=True)
+  (/23): BoundAdd(name=/23, inputs=[/21, /22], perturbed=True)
+  (/input.8): BoundRelu(name=/input.8, inputs=[/23], perturbed=True)
+  (/25): BoundConv(name=/25, inputs=[/input.8, /9, /10], perturbed=True)
+  (/input.12): BoundRelu(name=/input.12, inputs=[/25], perturbed=True)
+  (/27): BoundConv(name=/27, inputs=[/input.12, /11, /12], perturbed=True)
+  (/28): BoundAdd(name=/28, inputs=[/27, /input.8], perturbed=True)
+  (/29): BoundRelu(name=/29, inputs=[/28], perturbed=True)
+  (/30): BoundShape(name=/30, inputs=[/29], perturbed=False)
+  (/31): BoundConstant(name=/31, value=0)
+  (/32): BoundGather(name=/32, inputs=[/30, /31], perturbed=False)
+  (/33): BoundConstant(name=/33, value=-1)
+  (/34): BoundConstant(name=/34, value=tensor([0], device='cuda:0'))
+  (/35): BoundUnsqueeze(name=/35, inputs=[/32, /34], perturbed=False)
+  (/36): BoundConstant(name=/36, value=tensor([0], device='cuda:0'))
+  (/37): BoundUnsqueeze(name=/37, inputs=[/33, /36], perturbed=False)
+  (/38): BoundConcat(name=/38, inputs=[/35, /37], perturbed=False)
+  (/39): BoundReshape(name=/39, inputs=[/29, /38], perturbed=True)
+  (/40): BoundLinear(name=/40, inputs=[/39, /13, /14], perturbed=True)
+  (/41): BoundRelu(name=/41, inputs=[/40], perturbed=True)
+  (/42): BoundLinear(name=/42, inputs=[/41, /15, /16], perturbed=True)
+)
+Original output: tensor([[-0.63313597,  4.85708332, -0.16869263, -0.98798227, -2.18656683,
+         -2.58123922, -0.50507504, -2.77083349,  1.97494018,  3.00146914]],
+       device='cuda:0')
+Split layers:
+  BoundConv(name=/17, inputs=[/input.1, /1, /2], perturbed=True): [(BoundRelu(name=/input, inputs=[/17], perturbed=True), 0)]
+  BoundConv(name=/19, inputs=[/input, /3, /4], perturbed=True): [(BoundRelu(name=/input.4, inputs=[/19], perturbed=True), 0)]
+  BoundAdd(name=/23, inputs=[/21, /22], perturbed=True): [(BoundRelu(name=/input.8, inputs=[/23], perturbed=True), 0)]
+  BoundConv(name=/25, inputs=[/input.8, /9, /10], perturbed=True): [(BoundRelu(name=/input.12, inputs=[/25], perturbed=True), 0)]
+  BoundAdd(name=/28, inputs=[/27, /input.8], perturbed=True): [(BoundRelu(name=/29, inputs=[/28], perturbed=True), 0)]
+  BoundLinear(name=/40, inputs=[/39, /13, /14], perturbed=True): [(BoundRelu(name=/41, inputs=[/40], perturbed=True), 0)]
+Nonlinear functions:
+   BoundRelu(name=/input, inputs=[/17], perturbed=True)
+   BoundRelu(name=/input.4, inputs=[/19], perturbed=True)
+   BoundRelu(name=/input.8, inputs=[/23], perturbed=True)
+   BoundRelu(name=/input.12, inputs=[/25], perturbed=True)
+   BoundRelu(name=/29, inputs=[/28], perturbed=True)
+   BoundRelu(name=/41, inputs=[/40], perturbed=True)
+layer /input using sparse-features alpha with shape [150]; unstable size 150; total size 2048 ([1, 8, 16, 16])
+layer /input start_node /19 using sparse-spec alpha [2, 37, 1, 150] with unstable size 36 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /23 using sparse-spec alpha [2, 32, 1, 150] with unstable size 31 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /25 using sparse-spec alpha [2, 30, 1, 150] with unstable size 29 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /28 using sparse-spec alpha [2, 77, 1, 150] with unstable size 76 total_size 1024 output_shape (16, 8, 8)
+layer /input start_node /40 using sparse-spec alpha [2, 7, 1, 150] with unstable size 6 total_size 100 output_shape torch.Size([100])
+layer /input start_node /42 using full alpha [2, 9, 1, 150] with unstable size None total_size 9 output_shape 9
+layer /input.4 using sparse-features alpha with shape [36]; unstable size 36; total size 1024 ([1, 16, 8, 8])
+layer /input.4 start_node /23 using sparse-spec alpha [2, 32, 1, 36] with unstable size 31 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /25 using sparse-spec alpha [2, 30, 1, 36] with unstable size 29 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /28 using sparse-spec alpha [2, 77, 1, 36] with unstable size 76 total_size 1024 output_shape (16, 8, 8)
+layer /input.4 start_node /40 using sparse-spec alpha [2, 7, 1, 36] with unstable size 6 total_size 100 output_shape torch.Size([100])
+layer /input.4 start_node /42 using full alpha [2, 9, 1, 36] with unstable size None total_size 9 output_shape 9
+layer /input.8 using sparse-features alpha with shape [31]; unstable size 31; total size 1024 ([1, 16, 8, 8])
+layer /input.8 start_node /25 using sparse-spec alpha [2, 30, 1, 31] with unstable size 29 total_size 1024 output_shape (16, 8, 8)
+layer /input.8 start_node /28 using sparse-spec alpha [2, 77, 1, 31] with unstable size 76 total_size 1024 output_shape (16, 8, 8)
+layer /input.8 start_node /40 using sparse-spec alpha [2, 7, 1, 31] with unstable size 6 total_size 100 output_shape torch.Size([100])
+layer /input.8 start_node /42 using full alpha [2, 9, 1, 31] with unstable size None total_size 9 output_shape 9
+layer /input.12 using sparse-features alpha with shape [29]; unstable size 29; total size 1024 ([1, 16, 8, 8])
+layer /input.12 start_node /28 using sparse-spec alpha [2, 77, 1, 29] with unstable size 76 total_size 1024 output_shape (16, 8, 8)
+layer /input.12 start_node /40 using sparse-spec alpha [2, 7, 1, 29] with unstable size 6 total_size 100 output_shape torch.Size([100])
+layer /input.12 start_node /42 using full alpha [2, 9, 1, 29] with unstable size None total_size 9 output_shape 9
+layer /29 using sparse-features alpha with shape [76]; unstable size 76; total size 1024 ([1, 16, 8, 8])
+layer /29 start_node /40 using sparse-spec alpha [2, 7, 1, 76] with unstable size 6 total_size 100 output_shape torch.Size([100])
+layer /29 start_node /42 using full alpha [2, 9, 1, 76] with unstable size None total_size 9 output_shape 9
+layer /41 using sparse-features alpha with shape [6]; unstable size 6; total size 100 ([1, 100])
+layer /41 start_node /42 using full alpha [2, 9, 1, 6] with unstable size None total_size 9 output_shape 9
+Optimizable variables initialized.
+initial CROWN bounds: tensor([[5.09099245, 4.58599806, 5.41477203, 6.55487061, 6.94204903, 4.90002632,
+         7.10321712, 2.48666191, 1.57430100]], device='cuda:0') None
+Verified with initial CROWN!
+verified with init bound!
+Result: safe-incomplete in 0.3605 seconds
+############# Summary #############
+Final verified acc: 70.0% (total 10 examples)
+Problem instances count: 10 , total verified (safe/unsat): 7 , total falsified (unsafe/sat): 3 , timeout: 0
+mean time for ALL instances (total 10):0.5352585446746219, max time: 1.9416377544403076
+mean time for verified SAFE instances(total 7): 0.5999956812177386, max time: 1.9416377544403076
+mean time for verified (SAFE + UNSAFE) instances (total 10): 0.5352590799331665, max time: [1.9416377544403076, 0.3994922637939453, 0.3846123218536377, 0.3951122760772705, 0.3675508499145508, 0.35103702545166016, 0.36052727699279785]
+mean time for verified UNSAFE instances (total 3): 0.38420701026916504, max time: 1.1422083377838135
+unsafe-pgd (total 3), index: [0, 7, 8]
+safe-incomplete (total 7), index: [1, 2, 3, 4, 5, 6, 9]

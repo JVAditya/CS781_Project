@@ -1,0 +1,51 @@
+Running on cuda:0
+Demonstration 1: Bound computation and comparisons of different methods.
+
+Bounding method: backward (CROWN)
+Image 0 top-1 prediction 7 ground-truth 7
+f_0(x_0):  -14.591 <= f_0(x_0+delta) <=    5.766 
+f_1(x_0):  -15.472 <= f_1(x_0+delta) <=    5.743 
+f_2(x_0):  -10.893 <= f_2(x_0+delta) <=    7.134 
+f_3(x_0):   -9.217 <= f_3(x_0+delta) <=    8.108 
+f_4(x_0):  -13.282 <= f_4(x_0+delta) <=    5.981 
+f_5(x_0):  -12.884 <= f_5(x_0+delta) <=    7.721 
+f_6(x_0):  -22.442 <= f_6(x_0+delta) <=    2.099 
+f_7(x_0):   -5.266 <= f_7(x_0+delta) <=   14.227 (ground-truth)
+f_8(x_0):  -11.099 <= f_8(x_0+delta) <=    3.575 
+f_9(x_0):   -9.379 <= f_9(x_0+delta) <=    7.174 
+Image 1 top-1 prediction 2 ground-truth 2
+f_0(x_0):  -16.394 <= f_0(x_0+delta) <=    5.594 
+f_1(x_0):  -12.475 <= f_1(x_0+delta) <=    7.146 
+f_2(x_0):   -9.290 <= f_2(x_0+delta) <=   12.520 (ground-truth)
+f_3(x_0):  -10.159 <= f_3(x_0+delta) <=    7.462 
+f_4(x_0):  -19.563 <= f_4(x_0+delta) <=    3.509 
+f_5(x_0):  -10.920 <= f_5(x_0+delta) <=    8.189 
+f_6(x_0):  -11.825 <= f_6(x_0+delta) <=    9.546 
+f_7(x_0):  -19.503 <= f_7(x_0+delta) <=    3.786 
+f_8(x_0):   -9.278 <= f_8(x_0+delta) <=    4.289 
+f_9(x_0):  -17.878 <= f_9(x_0+delta) <=    2.508 
+
+Bounding method: CROWN-Optimized (alpha-CROWN)
+Image 0 top-1 prediction 7 ground-truth 7
+f_0(x_0):  -11.758 <= f_0(x_0+delta) <=    2.353 
+f_1(x_0):  -12.595 <= f_1(x_0+delta) <=    3.427 
+f_2(x_0):   -8.329 <= f_2(x_0+delta) <=    4.714 
+f_3(x_0):   -6.935 <= f_3(x_0+delta) <=    5.914 
+f_4(x_0):  -10.494 <= f_4(x_0+delta) <=    4.446 
+f_5(x_0):  -10.020 <= f_5(x_0+delta) <=    4.571 
+f_6(x_0):  -20.002 <= f_6(x_0+delta) <=   -1.190 
+f_7(x_0):   -2.083 <= f_7(x_0+delta) <=   12.509 (ground-truth)
+f_8(x_0):   -9.143 <= f_8(x_0+delta) <=    2.243 
+f_9(x_0):   -6.987 <= f_9(x_0+delta) <=    4.829 
+Image 1 top-1 prediction 2 ground-truth 2
+f_0(x_0):  -13.453 <= f_0(x_0+delta) <=    3.902 
+f_1(x_0):   -9.444 <= f_1(x_0+delta) <=    5.124 
+f_2(x_0):   -5.741 <= f_2(x_0+delta) <=   10.651 (ground-truth)
+f_3(x_0):   -7.574 <= f_3(x_0+delta) <=    5.995 
+f_4(x_0):  -17.605 <= f_4(x_0+delta) <=    0.766 
+f_5(x_0):   -9.095 <= f_5(x_0+delta) <=    4.971 
+f_6(x_0):   -8.896 <= f_6(x_0+delta) <=    6.590 
+f_7(x_0):  -17.728 <= f_7(x_0+delta) <=    1.214 
+f_8(x_0):   -7.357 <= f_8(x_0+delta) <=    2.981 
+f_9(x_0):  -16.100 <= f_9(x_0+delta) <=   -0.107 
+

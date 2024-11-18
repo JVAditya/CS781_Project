@@ -1,0 +1,2 @@
+k = 28
+FLOAT_COMP_PREC=1e-7
