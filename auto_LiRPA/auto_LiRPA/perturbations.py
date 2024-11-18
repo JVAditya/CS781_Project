@@ -232,7 +232,7 @@ class PerturbationLpNorm(Perturbation):
                 bound2 = A.matmul(center) + sign * A.abs().matmul(diff)
 
                 # @JV: REMOVE the below line 
-                bound = bound2
+                # bound = bound2
 
                 # @JV: sanity check
                 # if not (torch.all(bound*sign <= sign*bound2 + 2*custom_changes.FLOAT_COMP_PREC*(custom_changes.k**2))):
@@ -321,7 +321,7 @@ class PerturbationLpNorm(Perturbation):
                 bound2 = A.matmul(x) + sign * deviation2.unsqueeze(-1)
 
                 # @JV: REMOVE the below line 
-                bound = bound2
+                # bound = bound2
 
                 # @JV: sanity check
                 # if not (torch.all(bound*sign <= bound2*sign + 2*custom_changes.FLOAT_COMP_PREC*(custom_changes.k**2))):
@@ -386,7 +386,7 @@ class PerturbationLpNorm(Perturbation):
                     raise ValueError("Unsupported Sign")
 
                 # @JV: REMOVE the below line 
-                bound = bound1
+                # bound = bound1
 
                 # @JV: sanity check
                 # if not (torch.all(bound*sign <= sign*bound1 + 2*custom_changes.FLOAT_COMP_PREC*(custom_changes.k**2))):
@@ -443,7 +443,7 @@ class PerturbationLpNorm(Perturbation):
                 deviation2 = matrix.norm(p=self.dual_norm, dim=(-3,-2,-1)) * self.eps  
 
                 # @JV: REMOVE the below line 
-                deviation = deviation2
+                # deviation = deviation2
                  
                 # @JV: sanity check
                 # if not (torch.all(deviation <= deviation2 + 2*custom_changes.FLOAT_COMP_PREC*(custom_changes.k**2))):
