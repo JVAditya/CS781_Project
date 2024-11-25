@@ -151,7 +151,7 @@ class PerturbationL0Norm(Perturbation):
 
 class PerturbationLpNorm(Perturbation):
     """Perturbation constrained by the L_p norm."""
-    def __init__(self, eps=0, norm=np.inf, x_L=None, x_U=None, eps_min=0):
+    def __init__(self, eps=0, norm=np.inf, x_L=None, x_U=None, eps_min=0,k=custom_changes.k):
         self.eps = eps
         self.eps_min = eps_min
         self.norm = norm
@@ -159,6 +159,7 @@ class PerturbationLpNorm(Perturbation):
         self.x_L = x_L
         self.x_U = x_U
         self.sparse = False
+        self.k = k
 
     def get_input_bounds(self, x, A):
         if self.sparse:
@@ -197,7 +198,7 @@ class PerturbationLpNorm(Perturbation):
                         bound = A.matmul(center) + sign * (
                             torch.amax(
                                 torch.nn.functional.conv2d(
-                                    input=(A.abs() + custom_changes.FLOAT_COMP_PREC).view(A.shape[0], A.shape[1], x.shape[1], x.shape[2]), weight=torch.ones(A.shape[1], 1, custom_changes.k, custom_changes.k).to(A.device), 
+                                    input=(A.abs() + custom_changes.FLOAT_COMP_PREC).view(A.shape[0], A.shape[1], x.shape[1], x.shape[2]), weight=torch.ones(A.shape[1], 1, self.k, self.k).to(A.device), 
                                     groups=A.shape[1]
                                 ), 
                                 dim=(2, 3)
@@ -213,7 +214,7 @@ class PerturbationLpNorm(Perturbation):
                             torch.amax(
                                 torch.nn.functional.conv2d(
                                     input=(A.abs() + custom_changes.FLOAT_COMP_PREC).view(A.shape[0], A.shape[1], x.shape[1], x.shape[2], x.shape[3]).sum(dim=2),
-                                    weight=torch.ones(A.shape[1], 1, custom_changes.k, custom_changes.k).to(A.device),
+                                    weight=torch.ones(A.shape[1], 1, self.k, self.k).to(A.device),
                                     groups=A.shape[1]
                                 ),
                                 dim=(2,3)
@@ -229,17 +230,18 @@ class PerturbationLpNorm(Perturbation):
                     assert False, f"x can't have shape {x.shape}"
                     bound = A.matmul(center) + sign * A.abs().matmul(diff)
                 
-                bound2 = A.matmul(center) + sign * A.abs().matmul(diff)
+                # bound2 = A.matmul(center) + sign * A.abs().matmul(diff)
 
                 # @JV: REMOVE the below line 
-                # bound = bound2
+                if False: # Sanity Checks
+                    # bound = bound2
 
-                # @JV: sanity check
-                # if not (torch.all(bound*sign <= sign*bound2 + 2*custom_changes.FLOAT_COMP_PREC*(custom_changes.k**2))):
-                # # if not ((bound - bound2).abs().amax() <= 5e-4):
-                #     print(229)
-                #     __import__("IPython").embed()
-                #     exit()
+                    # @JV: sanity check
+                    if not (torch.all(bound*sign <= sign*bound2 + 2*custom_changes.FLOAT_COMP_PREC*(self.k**2))):
+                    # if not ((bound - bound2).abs().amax() <= 5e-4):
+                        print(229)
+                        __import__("IPython").embed()
+                        exit()
                 # @JV: end of sanity check
             else:
                 # A is an identity matrix. No need to do this matmul.
@@ -263,14 +265,21 @@ class PerturbationLpNorm(Perturbation):
                 # @JV: New addition
                 bound = None
                 if len(xshape) == 3:
-                    if abs(self.norm - 1) < 1e-4:
+                    if abs(self.norm - 1) < 1e-5:
+                        # bound = A.matmul(x) + sign * (
+                        #     torch.amax(
+                        #         torch.nn.functional.max_pool2d(
+                        #             input=(A.abs()).view(A.shape[0], A.shape[1], x_in_rows, x_in_cols),
+                        #             kernel_size=self.k
+                        #         ), 
+                        #         dim=(2, 3)
+                        #     ).unsqueeze(-1)
+                        # ) * self.eps
                         bound = A.matmul(x) + sign * (
                             torch.amax(
-                                torch.nn.functional.max_pool2d(
-                                    input=(A.abs() + custom_changes.FLOAT_COMP_PREC).view(A.shape[0], A.shape[1], x_in_rows, x_in_cols),
-                                    kernel_size=custom_changes.k
-                                ), 
-                                dim=(2, 3)
+                                A.abs().view(A.shape[0], A.shape[1], x_in_rows, x_in_cols)
+                                , 
+                                dim=(2, 3, 4)
                             ).unsqueeze(-1)
                         ) * self.eps
                     else:
@@ -279,7 +288,7 @@ class PerturbationLpNorm(Perturbation):
                             torch.amax(
                                 torch.nn.functional.conv2d(
                                     input=((A.abs() + custom_changes.FLOAT_COMP_PREC)**self.dual_norm).view(A.shape[0], A.shape[1], x_in_rows, x_in_cols),
-                                    weight=torch.ones(A.shape[1], 1, custom_changes.k, custom_changes.k).to(A.device),
+                                    weight=torch.ones(A.shape[1], 1, self.k, self.k).to(A.device),
                                     groups=A.shape[1]
                                 ), 
                                 dim=(2, 3)
@@ -288,14 +297,20 @@ class PerturbationLpNorm(Perturbation):
                         ) * self.eps
 
                 elif len(xshape) == 4:
-                    if abs(self.norm - 1) < 1e-4:
+                    if abs(self.norm - 1) < 1e-5:
+                        # bound = A.matmul(x) + sign * (        
+                        #     torch.amax(
+                        #         torch.nn.functional.max_pool2d(
+                        #             input=torch.max(A.abs().view(A.shape[0], A.shape[1], channels, x_in_rows, x_in_cols), dim=2).values,
+                        #             kernel_size=self.k
+                        #         ),
+                        #         dim=(2,3)
+                        #     ).unsqueeze(-1)
+                        # ) * self.eps
                         bound = A.matmul(x) + sign * (        
                             torch.amax(
-                                torch.nn.functional.max_pool2d(
-                                    input=torch.max((A.abs() + custom_changes.FLOAT_COMP_PREC).view(A.shape[0], A.shape[1], channels, x_in_rows, x_in_cols), dim=2).values,
-                                    kernel_size=custom_changes.k
-                                ),
-                                dim=(2,3)
+                                A.abs().view(A.shape[0], A.shape[1], channels, x_in_rows, x_in_cols),
+                                dim=(2,3, 4)
                             ).unsqueeze(-1)
                         ) * self.eps
                     else:
@@ -304,7 +319,7 @@ class PerturbationLpNorm(Perturbation):
                             torch.amax(
                                 torch.nn.functional.conv2d(
                                     input=((A.abs() + custom_changes.FLOAT_COMP_PREC)**self.dual_norm).view(A.shape[0], A.shape[1], channels, x_in_rows, x_in_cols).sum(dim=2),
-                                    weight=torch.ones(A.shape[1], 1, custom_changes.k, custom_changes.k).to(A.device),
+                                    weight=torch.ones(A.shape[1], 1, self.k, self.k).to(A.device),
                                     groups=A.shape[1]
                                 ),
                                 dim=(2,3)
@@ -317,18 +332,19 @@ class PerturbationLpNorm(Perturbation):
                     deviation = A.norm(self.dual_norm, -1) * self.eps
                     bound = A.matmul(x) + sign * deviation.unsqueeze(-1)
 
-                deviation2 = A.norm(self.dual_norm, -1) * self.eps
-                bound2 = A.matmul(x) + sign * deviation2.unsqueeze(-1)
+                # deviation2 = A.norm(self.dual_norm, -1) * self.eps
+                # bound2 = A.matmul(x) + sign * deviation2.unsqueeze(-1)
 
                 # @JV: REMOVE the below line 
-                # bound = bound2
+                if False: # Sanity Checks
+                    # bound = bound2
 
-                # @JV: sanity check
-                # if not (torch.all(bound*sign <= bound2*sign + 2*custom_changes.FLOAT_COMP_PREC*(custom_changes.k**2))):
-                # # if not ((bound - bound2).abs().amax() <= 5e-4):
-                #     print(313)
-                #     __import__("IPython").embed()
-                #     exit()
+                    #@JV: sanity check
+                    if not (torch.all(bound*sign <= bound2*sign + 2*custom_changes.FLOAT_COMP_PREC*(self.k**2))):
+                    # if not ((bound - bound2).abs().amax() <= 5e-4):
+                        print(313)
+                        __import__("IPython").embed()
+                        exit()
                 # @JV: end of sanity check
             else:
                 # A is an identity matrix. Its norm is all 1.
@@ -361,7 +377,7 @@ class PerturbationLpNorm(Perturbation):
                 deviation = torch.amax(
                                 torch.nn.functional.conv2d(
                                     input=(matrix.abs() + custom_changes.FLOAT_COMP_PREC).sum(dim=2),  
-                                    weight=torch.ones(matrix.shape[1], 1, custom_changes.k, custom_changes.k).to(matrix.device),
+                                    weight=torch.ones(matrix.shape[1], 1, self.k, self.k).to(matrix.device),
                                     groups=matrix.shape[1]
                                 ),
                                 dim=(2,3)
@@ -375,25 +391,25 @@ class PerturbationLpNorm(Perturbation):
                                        A.patches.size(2), A.patches.size(3))
                 # @JV: End of new addition
 
-                bound1 = A.matmul(center)
-                bound_diff1 = A.matmul(diff, patch_abs=True)
+                # bound1 = A.matmul(center)
+                # bound_diff1 = A.matmul(diff, patch_abs=True)
 
-                if sign == 1:
-                    bound1 += bound_diff1
-                elif sign == -1:
-                    bound1 -= bound_diff1
-                else:
-                    raise ValueError("Unsupported Sign")
+                # if sign == 1:
+                #     bound1 += bound_diff1
+                # elif sign == -1:
+                #     bound1 -= bound_diff1
+                # else:
+                #     raise ValueError("Unsupported Sign")
 
                 # @JV: REMOVE the below line 
-                # bound = bound1
-
-                # @JV: sanity check
-                # if not (torch.all(bound*sign <= sign*bound1 + 2*custom_changes.FLOAT_COMP_PREC*(custom_changes.k**2))):
-                # # if not ((bound - bound1).abs().amax() <= 5e-4):
-                #     print(370)
-                #     __import__("IPython").embed()
-                #     exit()
+                if False: # Sanity Checks
+                    # bound = bound1
+                    # @JV: sanity check
+                    if not (torch.all(bound*sign <= sign*bound1 + 2*custom_changes.FLOAT_COMP_PREC*(self.k**2))):
+                    # if not ((bound - bound1).abs().amax() <= 5e-4):
+                        print(370)
+                        __import__("IPython").embed()
+                        exit()
                 # @JV: end of sanity check
             else:
                 # A is an identity matrix. No need to do this matmul.
@@ -416,12 +432,12 @@ class PerturbationLpNorm(Perturbation):
 
                 # @JV: New addition. TODO: deal with dual_norm == infty
                 deviation = None
-                if abs(self.norm - 1) < 1e-4:
+                if abs(self.norm - 1) < 1e-5:
                     deviation = ( 
                         torch.amax(
                             torch.nn.functional.max_pool2d(
-                                input=torch.max(matrix.abs() + custom_changes.FLOAT_COMP_PREC, dim=2).values,  
-                                kernel_size=custom_changes.k
+                                input=torch.max(matrix.abs(), dim=2).values,  
+                                kernel_size=self.k
                             ),
                             dim=(2,3)
                         )
@@ -432,7 +448,7 @@ class PerturbationLpNorm(Perturbation):
                         torch.amax(
                             torch.nn.functional.conv2d(
                                 input=((matrix.abs() + custom_changes.FLOAT_COMP_PREC)**self.dual_norm).sum(dim=2),  
-                                weight=torch.ones(matrix.shape[1], 1, custom_changes.k, custom_changes.k).to(matrix.device),
+                                weight=torch.ones(matrix.shape[1], 1, self.k, self.k).to(matrix.device),
                                 groups=matrix.shape[1]
                             ),
                             dim=(2,3)
@@ -440,17 +456,18 @@ class PerturbationLpNorm(Perturbation):
                     ) * self.eps
 
                 # @JV: end of new addition
-                deviation2 = matrix.norm(p=self.dual_norm, dim=(-3,-2,-1)) * self.eps  
+                # deviation2 = matrix.norm(p=self.dual_norm, dim=(-3,-2,-1)) * self.eps  
 
                 # @JV: REMOVE the below line 
-                # deviation = deviation2
+                if False: # Sanity Checks
+                    # deviation = deviation2
                  
-                # @JV: sanity check
-                # if not (torch.all(deviation <= deviation2 + 2*custom_changes.FLOAT_COMP_PREC*(custom_changes.k**2))):
-                # # if not ((deviation - deviation2).abs().amax() <= 5e-4):
-                #     print(420)
-                #     __import__("IPython").embed()
-                #     exit()
+                    # @JV: sanity check
+                    if not (torch.all(deviation <= deviation2 + 2*custom_changes.FLOAT_COMP_PREC*(self.k**2))):
+                    # if not ((deviation - deviation2).abs().amax() <= 5e-4):
+                        print(420)
+                        __import__("IPython").embed()
+                        exit()
                 # @JV: end of sanity check
 
                 # Bound has shape (batch, out_c * out_h * out_w) or (batch, unstable_size).
@@ -535,11 +552,11 @@ class PerturbationLpNorm(Perturbation):
     def __repr__(self):
         if self.norm == np.inf:
             if self.x_L is None and self.x_U is None:
-                return f'PerturbationLpNorm(norm=inf, eps={self.eps})'
+                return f'PerturbationLpNorm(norm=inf, eps={self.eps}, k={self.k})'
             else:
-                return f'PerturbationLpNorm(norm=inf, eps={self.eps}, x_L={self.x_L}, x_U={self.x_U})'
+                return f'PerturbationLpNorm(norm=inf, eps={self.eps}, x_L={self.x_L}, x_U={self.x_U}, k={self.k})'
         else:
-            return f'PerturbationLpNorm(norm={self.norm}, eps={self.eps})'
+            return f'PerturbationLpNorm(norm={self.norm}, eps={self.eps}, k={self.k})'
 
 
 class PerturbationSynonym(Perturbation):
