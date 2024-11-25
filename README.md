@@ -54,7 +54,12 @@ For detailed instructions, you can refer to [alpha-beta-CROWN GitHub repository]
 
 ### Running Instructions
 
-To change the value of `k` globally, edit the `auto_LiRPA/auto_LiRPA/custom_changes.py` file. Locate the section where the `k` parameter is defined and update it accordingly:
+To change the value of `k` at a perturbation , pass it as an argument to `PerturbationLpNorm`
+```python
+ptb = PerturbationLpNorm(norm = norm, eps = eps, k = k)
+```
+
+To change the value of `k` globally (which will be the default value) , edit the `auto_LiRPA/auto_LiRPA/custom_changes.py` file. Locate the section where the `k` parameter is defined and update it accordingly:
 
 ```python
 # Example: Change the value of k
